@@ -3,16 +3,22 @@
 // final
 var MAX_SPEED = 10;
 var INITIAL_BALL_SPAWNS = 10;
-var FRICTION = true;
-var FRICTION_MULTIPLIER = 0.999;
 
 // changing
+var friction = true;
+var frictionAmount = 0.0;
 var balls = [];
 var averageSpeed = 0;
+var gui;
 
 function setup() {
 	frameRate(30);
-	createCanvas(1300, 731);
+	createCanvas(windowWidth, windowHeight);
+    
+    sliderRange(-0.005, 0.05, 0.001);
+    gui = createGui('Settings');
+    gui.addGlobals('friction', 'frictionAmount');
+    
 	for (var i = INITIAL_BALL_SPAWNS - 1; i >= 0; i--) {
 		balls.push(new ball());
 	}
@@ -68,9 +74,9 @@ function ball() {
 				this.yspeed *= -1;
 			}
 
-			if (FRICTION) {
-				this.xspeed *= FRICTION_MULTIPLIER; // slow down horizontally
-				this.yspeed *= FRICTION_MULTIPLIER; // slow down vertically
+			if (friction) {
+				this.xspeed *= 1 - frictionAmount; // slow down horizontally
+				this.yspeed *= 1 - frictionAmount; // slow down vertically
 
 				if (abs(this.xspeed) < 0.05) { // die faster
 					this.xspeed = 0;
@@ -97,4 +103,8 @@ function ball() {
 		fill(this.colour);
 		ellipse(this.x, this.y, 2 * this.r);
 	}
+}
+
+function windowResized() {
+  resizeCanvas(windowWidth, windowHeight);
 }
