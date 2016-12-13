@@ -1,24 +1,24 @@
 // Docs: https://p5js.org/reference/
 
 // final
-var MAX_SPEED_AT_SPAWN_IN_ONE_DIRECTION = 10;
+var MAX_SPEED_AT_SPAWN_IN_ONE_DIRECTION = 5;
 var INITIAL_BALL_SPAWNS = 10;
 
 // changing
 var showStats = true;
 var friction = false;
-var motionBlur = false;
+var trails = false;
 var frictionAmount = 0.0;
 var balls = [];
 var gui;
 
 function setup() {
-	frameRate(30);
+	frameRate(60);
 	createCanvas(windowWidth, windowHeight);
     
     sliderRange(-0.005, 0.05, 0.001);
     gui = createGui('Settings');
-    gui.addGlobals('showStats', 'motionBlur', 'friction', 'frictionAmount');
+    gui.addGlobals('showStats', 'trails', 'friction', 'frictionAmount');
     
 	for (var i = INITIAL_BALL_SPAWNS - 1; i >= 0; i--) {
 		balls.push(new ball());
@@ -26,8 +26,8 @@ function setup() {
 }
 
 function draw() {
-    if (motionBlur) {
-	   background(51, 140);
+    if (trails) {
+	   background(51, 60);
     } else {
         background(51);
     }
@@ -52,7 +52,13 @@ function draw() {
         
         noStroke();
         textSize(32);
-        fill(color(255, 255, 255));
+        var fps = floor(frameRate());
+        if (fps > 60){
+            fps = 60;
+        }
+        fill(color(map(fps, 0, 60, 255, 0), map(fps, 0, 60, 0, 255), 0));
+        text("FPS: " + fps, 10, height - 130);
+        fill(255);
         text("Max speed: " + maxSpeed.toFixed(4), 10, height - 90);
         text("Average speed: " + averageSpeed.toFixed(4), 10, height - 50);
         text("Min speed: " + minSpeed.toFixed(4), 10, height - 10);
