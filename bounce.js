@@ -5,10 +5,10 @@ var MAX_SPEED = 10;
 var INITIAL_BALL_SPAWNS = 10;
 
 // changing
-var friction = true;
+var showStats = true;
+var friction = false;
 var frictionAmount = 0.0;
 var balls = [];
-var averageSpeed = 0;
 var gui;
 
 function setup() {
@@ -17,7 +17,7 @@ function setup() {
     
     sliderRange(-0.005, 0.05, 0.001);
     gui = createGui('Settings');
-    gui.addGlobals('friction', 'frictionAmount');
+    gui.addGlobals('showStats', 'friction', 'frictionAmount');
     
 	for (var i = INITIAL_BALL_SPAWNS - 1; i >= 0; i--) {
 		balls.push(new ball());
@@ -27,18 +27,31 @@ function setup() {
 function draw() {
 	background(51);
 
-	averageSpeed = 0;
- 	for (var i = balls.length - 1; i >= 0; i--) {
- 		balls[i].update();
- 		balls[i].draw();
- 		averageSpeed += sqrt(sq(balls[i].xspeed) + sq(balls[i].yspeed))
- 	}
- 	averageSpeed /= balls.length;
-
- 	noStroke();
- 	textSize(32);
-	fill(color(255, 255, 255));
-	text("Average speed: " + averageSpeed.toFixed(4), 10, height - 10);
+    for (var i = balls.length - 1; i >= 0; i--) {            
+        balls[i].update();
+        balls[i].draw();
+    }
+    
+    if (showStats) {
+        var averageSpeed = 0;
+        var maxSpeed = 0;
+        var minSpeed = Number.MAX_SAFE_INTEGER;
+        
+        for (var i = balls.length - 1; i >= 0; i--) {            
+            var speed = sqrt(sq(balls[i].xspeed) + sq(balls[i].yspeed));
+            averageSpeed += speed;
+            if (maxSpeed < speed) { maxSpeed = speed; }
+            if (minSpeed > speed) { minSpeed = speed; }
+        }
+        averageSpeed /= balls.length;
+        
+        noStroke();
+        textSize(32);
+        fill(color(255, 255, 255));
+        text("Max speed: " + maxSpeed.toFixed(4), 10, height - 90);
+        text("Average speed: " + averageSpeed.toFixed(4), 10, height - 50);
+        text("Min speed: " + minSpeed.toFixed(4), 10, height - 10);
+    }
 }
 
 function ball() {
