@@ -1,12 +1,13 @@
 // Docs: https://p5js.org/reference/
 
 // final
-var MAX_SPEED = 10;
+var MAX_SPEED_AT_SPAWN_IN_ONE_DIRECTION = 10;
 var INITIAL_BALL_SPAWNS = 10;
 
 // changing
 var showStats = true;
 var friction = false;
+var motionBlur = false;
 var frictionAmount = 0.0;
 var balls = [];
 var gui;
@@ -17,7 +18,7 @@ function setup() {
     
     sliderRange(-0.005, 0.05, 0.001);
     gui = createGui('Settings');
-    gui.addGlobals('showStats', 'friction', 'frictionAmount');
+    gui.addGlobals('showStats', 'motionBlur', 'friction', 'frictionAmount');
     
 	for (var i = INITIAL_BALL_SPAWNS - 1; i >= 0; i--) {
 		balls.push(new ball());
@@ -25,7 +26,11 @@ function setup() {
 }
 
 function draw() {
-	background(51);
+    if (motionBlur) {
+	   background(51, 140);
+    } else {
+        background(51);
+    }
 
     for (var i = balls.length - 1; i >= 0; i--) {            
         balls[i].update();
@@ -58,14 +63,14 @@ function ball() {
 
 	// final
 	this.r = random(5, 50);
-	this.colour = color(random(100,255), random(100, 255), random(100, 255), 127);
+	this.colour = color(random(130,255), random(130, 255), random(130, 255), 127);
 
 	// changing
 	this.x = random(this.r, width - this.r);
 	this.y = random(this.r, height - this.r);
 
-	this.xspeed = random(-1 * MAX_SPEED, MAX_SPEED);
-	this.yspeed = random(-1 * MAX_SPEED, MAX_SPEED);
+	this.xspeed = random(-1 * MAX_SPEED_AT_SPAWN_IN_ONE_DIRECTION, MAX_SPEED_AT_SPAWN_IN_ONE_DIRECTION);
+	this.yspeed = random(-1 * MAX_SPEED_AT_SPAWN_IN_ONE_DIRECTION, MAX_SPEED_AT_SPAWN_IN_ONE_DIRECTION);
 
 	this.alive = true;
 
