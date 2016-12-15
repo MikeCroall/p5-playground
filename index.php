@@ -2,7 +2,7 @@
     <head>
         <title>p5-playground</title>
         <style>
-            head, body {
+            html, body {
                 margin: 0;
                 padding: 0;
                 width: 100%;
