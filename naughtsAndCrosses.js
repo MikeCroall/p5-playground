@@ -7,7 +7,15 @@ var board;
 var winner = {
     found: false,
     draw: false,
-    piece: ""
+    piece: "",
+    start: {
+        x: -1,
+        y: -1
+    },
+    end: {
+        x: -1,
+        y: -1
+    }
 };
 
 var fpsDiv;
@@ -88,7 +96,15 @@ function hasWon() {
     var winnerFound = {
         found: false,
         draw: false,
-        piece: ""
+        piece: "",
+        start: {
+            x: -1,
+            y: -1
+        },
+        end: {
+            x: -1,
+            y: -1
+        }
     };
     for (var y = 0; y < 3; y++) {
         if (
@@ -98,6 +114,8 @@ function hasWon() {
             if (board.board[y][0] !== "") {
                 winnerFound.found = true;
                 winnerFound.piece = board.board[y][0]; 
+                winnerFound.start = {x:0, y:y};
+                winnerFound.end = {x:2, y:y};
                 break;
             }
         }
@@ -111,22 +129,31 @@ function hasWon() {
                 if (board.board[0][x] !== "") {
                     winnerFound.found = true;
                     winnerFound.piece = board.board[0][x]; 
+                    winnerFound.start = {x:x, y:0};
+                    winnerFound.end = {x:x, y:2};
                     break;
                 }
             }
         }
     }
     if (!winnerFound.found) {
-        if (
-            board.board[0][0] === board.board[1][1] &&
-            board.board[1][1] === board.board[2][2]
-            ||
-            board.board[0][2] === board.board[1][1] &&
-            board.board[1][1] === board.board[2][0]
-        ) {
-            if (board.board[1][1] !== "") {
+        if (board.board[1][1] !== "") {
+            if (
+                board.board[0][0] === board.board[1][1] &&
+                board.board[1][1] === board.board[2][2]
+            ) {
                 winnerFound.found = true;
                 winnerFound.piece = board.board[1][1];
+                winnerFound.start = {x:0, y:0};
+                winnerFound.end = {x:2, y:2};
+            } else if (
+                board.board[0][2] === board.board[1][1] &&
+                board.board[1][1] === board.board[2][0]
+            ) {
+                winnerFound.found = true;
+                winnerFound.piece = board.board[1][1];
+                winnerFound.start = {x:2, y:0};
+                winnerFound.end = {x:0, y:2};
             }
         }
     }
@@ -205,6 +232,16 @@ function gameBoard() {
                     }
                 }
             }
+        }
+        if (winner.found) {
+            if (winner.piece === "x"){
+                stroke(255, 0, 0);
+            } else {
+                stroke(0, 255, 0);
+            }
+            strokeWeight(16);
+            noFill();
+            line((winner.start.x+0.5) * pieceEdgeSize, (winner.start.y+0.5) * pieceEdgeSize, (winner.end.x+0.5) * pieceEdgeSize, (winner.end.y+0.5) * pieceEdgeSize);
         }
         var fps = floor(frameRate());
         if (fps > 60) { fps = 60; }
