@@ -17,6 +17,12 @@
             }
             ul {
                 list-style: none;
+                padding: 0;
+            }
+            li {
+                padding-top: 5px;
+                padding-bottom: 5px;
+                text-align: center;
             }
         </style>
     </head>
