@@ -4,6 +4,7 @@ var pieceEdgeSize = 10;
 var paddedWidth = pieceEdgeSize - 10;
 var playerTurn = true;
 var board;
+var winner = "";
 
 function setup() {
 	frameRate(60);
@@ -43,11 +44,14 @@ function mouseClicked() {
                 y: y * pieceEdgeSize + 5
             };
             if (hoveringOver(topLeft)) {
-                if (playerTurn) {
+                if (playerTurn && winner === "") {
                     if (board.board[y][x] === "") {
                         playerTurn = false;
                         board.board[y][x] = "o";
-                        aiTakeTurn();
+                        winner = hasWon();
+                        if (winner === "") {
+                            aiTakeTurn();
+                        }
                     } else {
                         alert("You can't go there!");
                     }
@@ -70,6 +74,54 @@ function aiTakeTurn() {
     }
     board.board[y][x] = "x";
     playerTurn = true;
+}
+
+function hasWon() {
+    var winnerFound = "";
+    for (var y = 0; y < 3; y++) {
+        if (
+            board.board[y][0] === board.board[y][1] &&
+            board.board[y][1] === board.board[y][2]
+        ) {
+            winnerFound = board.board[y][0]; 
+            break;
+        }
+    }
+    if (winnerFound === "") {
+        for (var x = 0; x < 3; x++) {
+            if (
+                board.board[0][x] === board.board[1][x] &&
+                board.board[1][x] === board.board[2][x]
+            ) {
+                winnerFound = board.board[0][x]; 
+                break;
+            }
+        }
+    }
+    if (winnerFound === "") {
+        if (
+            board.board[0][0] === board.board[1][1] &&
+            board.board[1][1] === board.board[2][2]
+            ||
+            board.board[0][2] === board.board[1][1] &&
+            board.board[1][1] === board.board[2][0]
+        ) {
+            winnerFound = board.board[1][1];
+        }
+    }
+    if (winnerFound !== "") {
+        console.log("WE HAVE A WINNER", winnerFound);
+    } else {
+        for (var y = 0; y < 3; y++) {
+            for (var x = 0; x < 3; x++) {
+                if (board.board[y][x] === "") {
+                    return "";
+                    // checking for a draw, if we encounter an empty piece, we haven't drawn yet
+                }
+            }
+        }
+    }
+    return winnerFound;
 }
 
 function draw() {
