@@ -13,6 +13,7 @@
             }
             a {
                 font-size: 2em;
+                text-decoration: none;
             }
         </style>
     </head>
@@ -20,11 +21,12 @@
         <?php
 
             $files = array(
-                'bounce'
+                'bounce',
+                'naughts_and_crosses'
             );
 
             foreach ($files as &$file) {
-                echo "<a href='$file.html'>$file</a>";
+                echo "<a href='$file.html'>".str_replace('_', ' ', $file);."</a>";
             }
 
         ?>
