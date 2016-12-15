@@ -213,7 +213,7 @@ function gameBoard() {
                 if (!drawnSquare) {
                     noStroke();
                     if (!winner.found && !winner.draw) {
-                        fill(255);
+                        fill(255, 150);
                     } else {
                         fill(255, 51);
                     }
@@ -240,6 +240,7 @@ function gameBoard() {
                 stroke(0, 255, 0);
             }
             strokeWeight(16);
+            strokeCap(ROUND);
             noFill();
             line((winner.start.x+0.5) * pieceEdgeSize, (winner.start.y+0.5) * pieceEdgeSize, (winner.end.x+0.5) * pieceEdgeSize, (winner.end.y+0.5) * pieceEdgeSize);
         }
