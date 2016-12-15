@@ -31,7 +31,7 @@
 
             $files = array(
                 'bounce',
-                'naughts_and_crosses'
+                'noughts_and_crosses'
             );
             
             echo "<ul>";
