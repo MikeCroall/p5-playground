@@ -26,7 +26,7 @@
             );
 
             foreach ($files as &$file) {
-                echo "<a href='$file.html'>".str_replace('_', ' ', $file);."</a>";
+                echo "<a href='$file.html'>".str_replace('_', ' ', $file)."</a>";
             }
 
         ?>
