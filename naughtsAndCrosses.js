@@ -10,6 +10,8 @@ var winner = {
     piece: ""
 };
 
+var fpsDiv;
+
 function setup() {
 	frameRate(60);
     
@@ -23,6 +25,7 @@ function setup() {
 	createCanvas(calculatedCanvasEdgeSize, calculatedCanvasEdgeSize);    
 
     board = new gameBoard();
+    fpsDiv = select('#fps');
 }
 
 function windowResized() {
@@ -161,7 +164,6 @@ function gameBoard() {
     }
     
     this.draw = function() {
-        noStroke();
         for (var y = 0; y < 3; y++) {
             for (var x = 0; x < 3; x++) {
                 var topLeft = {
@@ -204,5 +206,11 @@ function gameBoard() {
                 }
             }
         }
+        var fps = floor(frameRate());
+        if (fps > 60) { fps = 60; }
+        noStroke();
+        textSize(32);
+        fpsDiv.style("color", color(map(fps, 0, 60, 255, 0), map(fps, 0, 60, 0, 255), 0));
+        fpsDiv.html("" + fps + " fps");
     }
 }
