@@ -120,6 +120,8 @@ function hasWon() {
                 }
             }
         }
+        console.log("It's a draw!");
+        winnerFound = "DRAW";
     }
     return winnerFound;
 }
