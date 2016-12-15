@@ -79,19 +79,30 @@ function mouseClicked() {
     }
 }
 
+function printBoard(b) {
+    for (var y = 0; y < 3; y++) {
+        console.log("y:" + y + "- " + b.board[y][0] + " " + b.board[y][1] + " " + b.board[y][2]);
+    }
+}
+
 function aiTakeTurn() {
-    /*console.log("TODO make computer player use MiniMax algorithm");
-    var x = floor(random(3));
+    /*var x = floor(random(3));
     var y = floor(random(3));
     while(board.board[y][x] !== "") {
         x = floor(random(3));
         y = floor(random(3));
     }*/
-    
+    console.log("Board before minimax");
+    printBoard(board);
     // TODO currently, minimax-ing is not perfect... not sure how
     var move = minimax(board, 0).choice;
+    console.log("Board after minimax (before making chosen move)");
+    printBoard(board);
     
     board.board[move.y][move.x] = "x";
+    console.log("Board after making move");
+    printBoard(board);
+    
     board.playerTurn = true;
 }
 
@@ -125,7 +136,7 @@ function minimax(b, depth) {
         moves.push(possibleMoves[i]);
     }
 
-    if (!b.playerTurn) {
+    if (!b.playerTurn) { // if AI turn, want max score
         var maxScoreIndex = 0;
         var maxScore = scores[0];
         for (var i = 0; i < scores.length; i++) {
@@ -138,7 +149,7 @@ function minimax(b, depth) {
             choice: moves[maxScoreIndex],
             score: scores[maxScoreIndex]
         };
-    } else {
+    } else { // if human players turn, want min score
         var minScoreIndex = 0;
         var minScore = scores[0];
         for (var i = 0; i < scores.length; i++) {
@@ -277,7 +288,7 @@ function gameBoard(grid) {
         for (var y = 0; y < 3; y++) {
             newBoard.board[y] = [];
             for (var x = 0; x < 3; x++) {
-                newBoard.board[y][x] = this.board[y][x].slice();
+                newBoard.board[y][x] = "" + this.board[y][x];
             }
         }
         newBoard.playerTurn = !this.board.playerTurn;
@@ -341,7 +352,6 @@ function gameBoard(grid) {
         }
         var fps = floor(frameRate());
         if (fps > 60) { fps = 60; }
-        noStroke();
         textSize(32);
         fpsDiv.style("color", color(map(fps, 0, 60, 255, 0), map(fps, 0, 60, 0, 255), 0));
         fpsDiv.html("" + fps + " fps");
