@@ -2,7 +2,6 @@ var canvasScale = 8;
 var calculatedCanvasEdgeSize = 50;
 var pieceEdgeSize = 10;
 var paddedWidth = pieceEdgeSize - 10;
-var playerTurn = true;
 var board;
 var winner = {
     found: false,
@@ -59,14 +58,14 @@ function mouseClicked() {
                 y: y * pieceEdgeSize + 5
             };
             if (hoveringOver(topLeft)) {
-                if (playerTurn && !winner.found && !winner.draw) {
+                if (board.playerTurn && !winner.found && !winner.draw) {
                     if (board.board[y][x] === "") {
-                        playerTurn = false;
+                        board.playerTurn = false;
                         board.board[y][x] = "o";
-                        winner = hasWon();
+                        winner = hasWon(board);
                         if (!winner.found && !winner.draw) {
                             aiTakeTurn();
-                            winner = hasWon();
+                            winner = hasWon(board);
                         }
                     } else {
                         alert("You can't go there!");
@@ -81,18 +80,81 @@ function mouseClicked() {
 }
 
 function aiTakeTurn() {
-    console.log("TODO make computer player use MiniMax algorithm");
+    /*console.log("TODO make computer player use MiniMax algorithm");
     var x = floor(random(3));
     var y = floor(random(3));
     while(board.board[y][x] !== "") {
         x = floor(random(3));
         y = floor(random(3));
-    }
-    board.board[y][x] = "x";
-    playerTurn = true;
+    }*/
+    
+    // TODO currently, minimax-ing is not perfect... not sure how
+    var move = minimax(board, 0).choice;
+    
+    board.board[move.y][move.x] = "x";
+    board.playerTurn = true;
 }
 
-function hasWon() {
+function boardScore(b, depth) {
+    var winningPlayer = hasWon(b);
+    if (winningPlayer.found) {
+        if (winningPlayer.piece === "x") { // because ai is x pieces
+            return 10 - depth;
+        } else {
+            return depth - 10;
+        }
+    }
+    return 0;
+}
+
+function minimax(b, depth) {
+    var w = hasWon(b);
+    if (w.found || w.draw) {
+        return {
+            choice: null,
+            score: boardScore(b, depth)
+        };
+    }
+    var scores = [];
+    var moves = [];
+
+    var possibleMoves = b.getAvailableMoves();
+    for (var i = 0; i < possibleMoves.length; i++) {
+        var possibleGame = b.getStateAfterPlacing(possibleMoves[i]);
+        scores.push(minimax(possibleGame, depth + 1).score);
+        moves.push(possibleMoves[i]);
+    }
+
+    if (!b.playerTurn) {
+        var maxScoreIndex = 0;
+        var maxScore = scores[0];
+        for (var i = 0; i < scores.length; i++) {
+            if (scores[i] > maxScore) {
+                maxScore = scores[i];
+                maxScoreIndex = i;
+            }
+        }
+        return {
+            choice: moves[maxScoreIndex],
+            score: scores[maxScoreIndex]
+        };
+    } else {
+        var minScoreIndex = 0;
+        var minScore = scores[0];
+        for (var i = 0; i < scores.length; i++) {
+            if (scores[i] < minScore) {
+                minScore = scores[i];
+                minScoreIndex = i;
+            }
+        }
+        return {
+            choice: moves[minScoreIndex],
+            score: scores[minScoreIndex]
+        };
+    }
+}
+
+function hasWon(b) {
     var winnerFound = {
         found: false,
         draw: false,
@@ -108,12 +170,12 @@ function hasWon() {
     };
     for (var y = 0; y < 3; y++) {
         if (
-            board.board[y][0] === board.board[y][1] &&
-            board.board[y][1] === board.board[y][2]
+            b.board[y][0] === b.board[y][1] &&
+            b.board[y][1] === b.board[y][2]
         ) {
-            if (board.board[y][0] !== "") {
+            if (b.board[y][0] !== "") {
                 winnerFound.found = true;
-                winnerFound.piece = board.board[y][0]; 
+                winnerFound.piece = b.board[y][0]; 
                 winnerFound.start = {x:0, y:y};
                 winnerFound.end = {x:2, y:y};
                 break;
@@ -123,12 +185,12 @@ function hasWon() {
     if (!winnerFound.found) {
         for (var x = 0; x < 3; x++) {
             if (
-                board.board[0][x] === board.board[1][x] &&
-                board.board[1][x] === board.board[2][x]
+                b.board[0][x] === b.board[1][x] &&
+                b.board[1][x] === b.board[2][x]
             ) {
-                if (board.board[0][x] !== "") {
+                if (b.board[0][x] !== "") {
                     winnerFound.found = true;
-                    winnerFound.piece = board.board[0][x]; 
+                    winnerFound.piece = b.board[0][x]; 
                     winnerFound.start = {x:x, y:0};
                     winnerFound.end = {x:x, y:2};
                     break;
@@ -137,42 +199,41 @@ function hasWon() {
         }
     }
     if (!winnerFound.found) {
-        if (board.board[1][1] !== "") {
+        if (b.board[1][1] !== "") {
             if (
-                board.board[0][0] === board.board[1][1] &&
-                board.board[1][1] === board.board[2][2]
+                b.board[0][0] === b.board[1][1] &&
+                b.board[1][1] === b.board[2][2]
             ) {
                 winnerFound.found = true;
-                winnerFound.piece = board.board[1][1];
+                winnerFound.piece = b.board[1][1];
                 winnerFound.start = {x:0, y:0};
                 winnerFound.end = {x:2, y:2};
             } else if (
-                board.board[0][2] === board.board[1][1] &&
-                board.board[1][1] === board.board[2][0]
+                b.board[0][2] === b.board[1][1] &&
+                b.board[1][1] === b.board[2][0]
             ) {
                 winnerFound.found = true;
-                winnerFound.piece = board.board[1][1];
+                winnerFound.piece = b.board[1][1];
                 winnerFound.start = {x:2, y:0};
                 winnerFound.end = {x:0, y:2};
             }
         }
     }
     if (winnerFound.found) {
-        console.log("We have a winner", winnerFound.piece);
         return winnerFound;
     } else {
         for (var y = 0; y < 3; y++) {
             for (var x = 0; x < 3; x++) {
-                if (board.board[y][x] === "") {
+                if (b.board[y][x] === "") {
                     // when checking for a draw, if we encounter an empty piece, we haven't drawn yet
                     return winnerFound;
                 }
             }
         }
-        console.log("It's a draw!");
         winnerFound.draw = true;
         return winnerFound;
     }
+    return winnerFound;
 }
 
 function draw() {
@@ -180,14 +241,48 @@ function draw() {
     board.draw();
 }
 
-function gameBoard() {
-    this.board = [];
-    for (var y = 0; y < 3; y++) {
-        this.board[y] = [];
-        for (var x = 0; x < 3; x++) {
-            //this.board[y].push(random(["","","o","x"]));
-            this.board[y].push("");
+function gameBoard(grid) {
+    this.playerTurn = true;
+    if (grid) {
+        this.board = grid;
+    } else {
+        this.board = [];
+        for (var y = 0; y < 3; y++) {
+            this.board[y] = [];
+            for (var x = 0; x < 3; x++) {
+                //this.board[y].push(random(["","","o","x"]));
+                this.board[y].push("");
+            }
         }
+    }
+    
+    this.getAvailableMoves = function() {
+        var moves = [];
+        for (var y = 0; y < 3; y++) {
+            for (var x = 0; x < 3; x++) {
+                if (this.board[y][x] === "") {
+                    moves.push({
+                        x: x, 
+                        y: y
+                    });
+                }
+            }
+        }
+        return moves;
+    }
+    
+    this.getStateAfterPlacing = function(move) {
+        var newBoard = new gameBoard();
+        newBoard.board = [];
+        for (var y = 0; y < 3; y++) {
+            newBoard.board[y] = [];
+            for (var x = 0; x < 3; x++) {
+                newBoard.board[y][x] = this.board[y][x].slice();
+            }
+        }
+        newBoard.playerTurn = !this.board.playerTurn;
+        newBoard.board[move.y][move.x] = this.board.playerTurn ? "o" : "x";
+        return newBoard;
     }
     
     this.draw = function() {
@@ -199,8 +294,8 @@ function gameBoard() {
                 };
                 var drawnSquare = false;
                 if (hoveringOver(topLeft)) {
-                    if (board.board[y][x] === "") {
-                        if (playerTurn && !winner.found) {
+                    if (this.board[y][x] === "") {
+                        if (this.playerTurn && !winner.found) {
                             noStroke();
                             fill(255);
                             rect(topLeft.x, topLeft.y, paddedWidth, paddedWidth);
