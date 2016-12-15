@@ -4,7 +4,11 @@ var pieceEdgeSize = 10;
 var paddedWidth = pieceEdgeSize - 10;
 var playerTurn = true;
 var board;
-var winner = "";
+var winner = {
+    found: false,
+    draw: false,
+    piece: ""
+};
 
 function setup() {
 	frameRate(60);
@@ -44,19 +48,20 @@ function mouseClicked() {
                 y: y * pieceEdgeSize + 5
             };
             if (hoveringOver(topLeft)) {
-                if (playerTurn && winner === "") {
+                if (playerTurn && !winner.found && !winner.draw) {
                     if (board.board[y][x] === "") {
                         playerTurn = false;
                         board.board[y][x] = "o";
                         winner = hasWon();
-                        if (winner === "") {
+                        if (!winner.found && !winner.draw) {
                             aiTakeTurn();
+                            winner = hasWon();
                         }
                     } else {
                         alert("You can't go there!");
                     }
                 } else {
-                    alert("Not your turn!");
+                    alert("You can't play now!");
                 }
                 break;
             }
@@ -77,28 +82,38 @@ function aiTakeTurn() {
 }
 
 function hasWon() {
-    var winnerFound = "";
+    var winnerFound = {
+        found: false,
+        draw: false,
+        piece: ""
+    };
     for (var y = 0; y < 3; y++) {
         if (
             board.board[y][0] === board.board[y][1] &&
             board.board[y][1] === board.board[y][2]
         ) {
-            winnerFound = board.board[y][0]; 
-            break;
+            if (board.board[y][0] !== "") {
+                winnerFound.found = true;
+                winnerFound.piece = board.board[y][0]; 
+                break;
+            }
         }
     }
-    if (winnerFound === "") {
+    if (!winnerFound.found) {
         for (var x = 0; x < 3; x++) {
             if (
                 board.board[0][x] === board.board[1][x] &&
                 board.board[1][x] === board.board[2][x]
             ) {
-                winnerFound = board.board[0][x]; 
-                break;
+                if (board.board[0][x] !== "") {
+                    winnerFound.found = true;
+                    winnerFound.piece = board.board[0][x]; 
+                    break;
+                }
             }
         }
     }
-    if (winnerFound === "") {
+    if (!winnerFound.found) {
         if (
             board.board[0][0] === board.board[1][1] &&
             board.board[1][1] === board.board[2][2]
@@ -106,24 +121,28 @@ function hasWon() {
             board.board[0][2] === board.board[1][1] &&
             board.board[1][1] === board.board[2][0]
         ) {
-            winnerFound = board.board[1][1];
+            if (board.board[1][1] !== "") {
+                winnerFound.found = true;
+                winnerFound.piece = board.board[1][1];
+            }
         }
     }
-    if (winnerFound !== "") {
-        console.log("WE HAVE A WINNER", winnerFound);
+    if (winnerFound.found) {
+        console.log("We have a winner", winnerFound.piece);
+        return winnerFound;
     } else {
         for (var y = 0; y < 3; y++) {
             for (var x = 0; x < 3; x++) {
                 if (board.board[y][x] === "") {
-                    return "";
-                    // checking for a draw, if we encounter an empty piece, we haven't drawn yet
+                    // when checking for a draw, if we encounter an empty piece, we haven't drawn yet
+                    return winnerFound;
                 }
             }
         }
         console.log("It's a draw!");
-        winnerFound = "DRAW";
+        winnerFound.draw = true;
+        return winnerFound;
     }
-    return winnerFound;
 }
 
 function draw() {
@@ -152,7 +171,7 @@ function gameBoard() {
                 var drawnSquare = false;
                 if (hoveringOver(topLeft)) {
                     if (board.board[y][x] === "") {
-                        if (playerTurn) {
+                        if (playerTurn && !winner.found) {
                             fill(255);
                             rect(topLeft.x, topLeft.y, paddedWidth, paddedWidth);
                             fill(0, 255, 0, 150);
