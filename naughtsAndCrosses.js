@@ -193,13 +193,13 @@ function gameBoard() {
                         noFill();
                         strokeWeight(4);
                         stroke(255, 0, 0, 150);
-                        line(topLeft.x, topLeft.y, topLeft.x + paddedWidth, topLeft.y + paddedWidth);
-                        line(topLeft.x, topLeft.y + paddedWidth, topLeft.x + paddedWidth, topLeft.y);
+                        line(topLeft.x + 0.05*paddedWidth, topLeft.y + 0.05*paddedWidth, topLeft.x + paddedWidth*0.95, topLeft.y + paddedWidth*0.95);
+                        line(topLeft.x + 0.05*paddedWidth, topLeft.y + paddedWidth*0.95, topLeft.x + paddedWidth*0.95, topLeft.y + 0.05*paddedWidth);
                     } else if (board.board[y][x] === "o") {
                         noFill();
                         strokeWeight(4);
                         stroke(0, 255, 0, 150);
-                        ellipse(topLeft.x + paddedWidth/2, topLeft.y + paddedWidth/2, paddedWidth, paddedWidth);
+                        ellipse(topLeft.x + paddedWidth/2, topLeft.y + paddedWidth/2, paddedWidth*0.9, paddedWidth*0.9);
                     }
                 }
             }
