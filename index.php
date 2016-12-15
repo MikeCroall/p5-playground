@@ -15,6 +15,9 @@
                 font-size: 2em;
                 text-decoration: none;
             }
+            ul {
+                list-style: none;
+            }
         </style>
     </head>
     <body>
@@ -24,11 +27,13 @@
                 'bounce',
                 'naughts_and_crosses'
             );
-
+            
+            echo "<ul>";
             foreach ($files as &$file) {
-                echo "<a href='$file.html'>".str_replace('_', ' ', $file)."</a>";
+                echo "<li><a href='$file.html'>".str_replace('_', ' ', $file)."</a></li>";
             }
-
+            echo "</ul>";
+        
         ?>
     </body>
 </html>
