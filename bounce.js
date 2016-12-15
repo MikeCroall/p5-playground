@@ -133,6 +133,6 @@ function ball() {
 }
 
 function windowResized() {
-    setup();
-    //resizeCanvas(windowWidth, windowHeight);
+    //setup();
+    resizeCanvas(windowWidth, windowHeight);
 }
