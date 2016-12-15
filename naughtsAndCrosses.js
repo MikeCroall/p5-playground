@@ -172,6 +172,7 @@ function gameBoard() {
                 if (hoveringOver(topLeft)) {
                     if (board.board[y][x] === "") {
                         if (playerTurn && !winner.found) {
+                            noStroke();
                             fill(255);
                             rect(topLeft.x, topLeft.y, paddedWidth, paddedWidth);
                             fill(0, 255, 0, 150);
@@ -181,14 +182,25 @@ function gameBoard() {
                     }
                 }
                 if (!drawnSquare) {
-                    if (board.board[y][x] === "") {
+                    noStroke();
+                    if (!winner.found && !winner.draw) {
                         fill(255);
-                    } else if (board.board[y][x] === "x") {
-                        fill(255, 0, 0, 150);
                     } else {
-                        fill(0, 255, 0, 150);
+                        fill(255, 51);
                     }
                     rect(topLeft.x, topLeft.y, paddedWidth, paddedWidth);
+                    if (board.board[y][x] === "x") {
+                        noFill();
+                        strokeWeight(4);
+                        stroke(255, 0, 0, 150);
+                        line(topLeft.x, topLeft.y, topLeft.x + paddedWidth, topLeft.y + paddedWidth);
+                        line(topLeft.x, topLeft.y + paddedWidth, topLeft.x + paddedWidth, topLeft.y);
+                    } else if (board.board[y][x] === "o") {
+                        noFill();
+                        strokeWeight(4);
+                        stroke(0, 255, 0, 150);
+                        ellipse(topLeft.x + paddedWidth/2, topLeft.y + paddedWidth/2, paddedWidth, paddedWidth);
+                    }
                 }
             }
         }
