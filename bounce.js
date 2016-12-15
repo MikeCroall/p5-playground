@@ -20,6 +20,7 @@ function setup() {
     gui = createGui('Settings');
     gui.addGlobals('showStats', 'trails', 'friction', 'frictionAmount');
     
+    balls = [];
 	for (var i = INITIAL_BALL_SPAWNS - 1; i >= 0; i--) {
 		balls.push(new ball());
 	}
@@ -70,7 +71,7 @@ function draw() {
 function ball() {
 
 	// final
-	this.r = random(5, 50);
+	this.r = random(10, 50);
 	this.colour = color(random(130,255), random(130, 255), random(130, 255), 127);
 
 	// changing
@@ -132,5 +133,6 @@ function ball() {
 }
 
 function windowResized() {
-  resizeCanvas(windowWidth, windowHeight);
+    setup();
+    //resizeCanvas(windowWidth, windowHeight);
 }

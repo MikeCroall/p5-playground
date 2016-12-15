@@ -24,7 +24,7 @@
             );
 
             foreach ($files as &$file) {
-                echo "<a href='$file.php'>$file</a>";
+                echo "<a href='$file.html'>$file</a>";
             }
 
         ?>
