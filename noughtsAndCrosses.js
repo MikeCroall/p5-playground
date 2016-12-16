@@ -3,6 +3,7 @@ var calculatedCanvasEdgeSize = 50;
 var pieceEdgeSize = 10;
 var paddedWidth = pieceEdgeSize - 10;
 var board;
+var turnsTakenByPlayer = 0;
 var winner = {
     found: false,
     draw: false,
@@ -63,6 +64,7 @@ function mouseClicked() {
                         board.playerTurn = false;
                         board.board[y][x] = "o";
                         winner = hasWon(board);
+                        turnsTakenByPlayer++;
                         if (!winner.found && !winner.draw) {
                             aiTakeTurn();
                             winner = hasWon(board);
@@ -92,30 +94,34 @@ function aiTakeTurn() {
         x = floor(random(3));
         y = floor(random(3));
     }*/
-    console.log("Board before minimax");
-    printBoard(board);
+    //console.log("Board before minimax");
+    //printBoard(board);
     // TODO currently, minimax-ing is not perfect... not sure how
     var move = minimax(board, 0).choice;
-    console.log("Board after minimax (before making chosen move)");
-    printBoard(board);
+    //console.log("Board after minimax (before making chosen move)");
+    //printBoard(board);
     
     board.board[move.y][move.x] = "x";
-    console.log("Board after making move");
-    printBoard(board);
+    //console.log("Board after making move");
+    //printBoard(board);
     
     board.playerTurn = true;
 }
 
 function boardScore(b, depth) {
     var winningPlayer = hasWon(b);
+    var s = 0;
     if (winningPlayer.found) {
         if (winningPlayer.piece === "x") { // because ai is x pieces
-            return 10 - depth;
+            s = 10 - depth;
         } else {
-            return depth - 10;
+            s = depth - 10;
         }
     }
-    return 0;
+//    console.log("\nTurns by player: " + turnsTakenByPlayer);
+//    printBoard(b);
+//    console.log("Had score " + s + " at depth " + depth);
+    return s;
 }
 
 function minimax(b, depth) {
@@ -291,8 +297,8 @@ function gameBoard(grid) {
                 newBoard.board[y][x] = "" + this.board[y][x];
             }
         }
-        newBoard.playerTurn = !this.board.playerTurn;
-        newBoard.board[move.y][move.x] = this.board.playerTurn ? "o" : "x";
+        newBoard.playerTurn = !this.playerTurn;
+        newBoard.board[move.y][move.x] = this.playerTurn ? "o" : "x";
         return newBoard;
     }
     
