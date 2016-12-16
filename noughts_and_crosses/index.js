@@ -242,7 +242,6 @@ function hasWon(b) {
             }
         }
         winnerFound.draw = true;
-        infoMessage = "It's a draw!";
         return winnerFound;
     }
     return winnerFound;
@@ -370,6 +369,8 @@ function gameBoard(grid) {
             strokeCap(ROUND);
             noFill();
             line((winner.start.x+0.5) * pieceEdgeSize, (winner.start.y+0.5) * pieceEdgeSize, (winner.end.x+0.5) * pieceEdgeSize, (winner.end.y+0.5) * pieceEdgeSize);
+        } else if(winner.draw) {
+            infoMessage = "It's a draw!";
         }
     }
 }
