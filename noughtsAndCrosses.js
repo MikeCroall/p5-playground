@@ -94,17 +94,8 @@ function aiTakeTurn() {
         x = floor(random(3));
         y = floor(random(3));
     }*/
-    //console.log("Board before minimax");
-    //printBoard(board);
-    // TODO currently, minimax-ing is not perfect... not sure how
     var move = minimax(board, 0).choice;
-    //console.log("Board after minimax (before making chosen move)");
-    //printBoard(board);
-    
     board.board[move.y][move.x] = "x";
-    //console.log("Board after making move");
-    //printBoard(board);
-    
     board.playerTurn = true;
 }
 
@@ -118,9 +109,6 @@ function boardScore(b, depth) {
             s = depth - 10;
         }
     }
-//    console.log("\nTurns by player: " + turnsTakenByPlayer);
-//    printBoard(b);
-//    console.log("Had score " + s + " at depth " + depth);
     return s;
 }
 
