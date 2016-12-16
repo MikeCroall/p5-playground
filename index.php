@@ -16,6 +16,9 @@
                 text-decoration: none;
                 color: #333;
             }
+            a:hover {
+                text-decoration: underline;
+            }
             ul {
                 list-style: none;
                 padding: 0;
