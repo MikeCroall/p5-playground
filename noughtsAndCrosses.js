@@ -19,6 +19,9 @@ var winner = {
 };
 
 var fpsDiv;
+var infoDiv;
+
+var infoMessage = "Setting up game...";
 
 function setup() {
 	frameRate(60);
@@ -34,6 +37,9 @@ function setup() {
 
     board = new gameBoard();
     fpsDiv = select('#fps');
+    infoDiv = select('#info');
+    
+    infoMessage = "Your turn";
 }
 
 function windowResized() {
@@ -70,10 +76,10 @@ function mouseClicked() {
                             winner = hasWon(board);
                         }
                     } else {
-                        alert("You can't go there!");
+                        infoMessage = "Your turn - you can't go there!";
                     }
                 } else {
-                    alert("You can't play now!");
+                    infoMessage = "AI turn - not yours!";
                 }
                 break;
             }
@@ -236,6 +242,7 @@ function hasWon(b) {
             }
         }
         winnerFound.draw = true;
+        infoMessage = "It's a draw!";
         return winnerFound;
     }
     return winnerFound;
@@ -244,6 +251,14 @@ function hasWon(b) {
 function draw() {
     background(51);
     board.draw();
+    
+    var fps = floor(frameRate());
+    if (fps > 60) { fps = 60; }
+    textSize(32);
+    fpsDiv.style("color", color(map(fps, 0, 60, 255, 0), map(fps, 0, 60, 0, 255), 0));
+    fpsDiv.html("" + fps + " fps");
+    
+    infoDiv.html(infoMessage);
 }
 
 function gameBoard(grid) {
@@ -280,10 +295,7 @@ function gameBoard(grid) {
         var newBoard = new gameBoard();
         newBoard.board = [];
         for (var y = 0; y < 3; y++) {
-            newBoard.board[y] = [];
-            for (var x = 0; x < 3; x++) {
-                newBoard.board[y][x] = "" + this.board[y][x];
-            }
+            newBoard.board[y] = this.board[y].slice();
         }
         newBoard.playerTurn = !this.playerTurn;
         newBoard.board[move.y][move.x] = this.playerTurn ? "o" : "x";
@@ -291,6 +303,7 @@ function gameBoard(grid) {
     }
     
     this.draw = function() {
+        var hoveredSomething = false;
         for (var y = 0; y < 3; y++) {
             for (var x = 0; x < 3; x++) {
                 var topLeft = {
@@ -298,15 +311,21 @@ function gameBoard(grid) {
                     y: y * pieceEdgeSize + 5
                 };
                 var drawnSquare = false;
-                if (hoveringOver(topLeft)) {
-                    if (this.board[y][x] === "") {
-                        if (this.playerTurn && !winner.found) {
-                            noStroke();
-                            fill(255);
-                            rect(topLeft.x, topLeft.y, paddedWidth, paddedWidth);
-                            fill(0, 255, 0, 150);
-                            rect(topLeft.x, topLeft.y, paddedWidth, paddedWidth);
-                            drawnSquare = true;
+                if (!winner.found) {
+                    if (hoveringOver(topLeft)) {
+                        hoveredSomething = true;
+                        if (this.board[y][x] === "") {
+                            if (this.playerTurn) {
+                                infoMessage = "Your turn - that's a valid move";
+                                noStroke();
+                                fill(255);
+                                rect(topLeft.x, topLeft.y, paddedWidth, paddedWidth);
+                                fill(0, 255, 0, 150);
+                                rect(topLeft.x, topLeft.y, paddedWidth, paddedWidth);
+                                drawnSquare = true;
+                            }
+                        } else if (this.playerTurn) {
+                            infoMessage = "Your turn - that's an invalid move";
                         }
                     }
                 }
@@ -333,7 +352,15 @@ function gameBoard(grid) {
                 }
             }
         }
+        if (!hoveredSomething) {
+            if (this.playerTurn) {
+                infoMessage = "Your turn";
+            } else {
+                infoMessage = "AI turn";
+            }
+        }
         if (winner.found) {
+            infoMessage = winner.piece + " wins!";
             if (winner.piece === "x"){
                 stroke(255, 0, 0);
             } else {
@@ -344,10 +371,5 @@ function gameBoard(grid) {
             noFill();
             line((winner.start.x+0.5) * pieceEdgeSize, (winner.start.y+0.5) * pieceEdgeSize, (winner.end.x+0.5) * pieceEdgeSize, (winner.end.y+0.5) * pieceEdgeSize);
         }
-        var fps = floor(frameRate());
-        if (fps > 60) { fps = 60; }
-        textSize(32);
-        fpsDiv.style("color", color(map(fps, 0, 60, 255, 0), map(fps, 0, 60, 0, 255), 0));
-        fpsDiv.html("" + fps + " fps");
     }
 }
