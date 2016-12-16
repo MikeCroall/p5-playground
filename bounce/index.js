@@ -24,11 +24,9 @@ function setup() {
 	for (var i = INITIAL_BALL_SPAWNS - 1; i >= 0; i--) {
 		balls.push(new ball());
 	}
-    console.log("setup complete");
 }
 
 function draw() {
-    console.log("drawing");
     if (trails) {
 	   background(51, 60);
     } else {

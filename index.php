@@ -14,6 +14,7 @@
             a {
                 font-size: 2em;
                 text-decoration: none;
+                color: #333;
             }
             ul {
                 list-style: none;
@@ -36,7 +37,7 @@
             
             echo "<ul>";
             foreach ($files as &$file) {
-                echo "<li><a href='$file.html'>".str_replace('_', ' ', $file)."</a></li>";
+                echo "<li><a href='$file/'>".str_replace('_', ' ', $file)."</a></li>";
             }
             echo "</ul>";
         
