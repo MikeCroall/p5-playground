@@ -11,12 +11,11 @@
                 justify-content: center;
                 align-items: center;
                 background-color: #333;
-                color: #888;
             }
             a {
                 font-size: 2em;
                 text-decoration: none;
-                color: #333;
+                color: #888;
             }
             a:hover {
                 text-decoration: underline;
