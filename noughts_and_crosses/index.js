@@ -14,7 +14,7 @@ var button;
 
 function resetGame() {
     // remove button to reset game
-    button.hide();
+    button.remove();
     
     // reset game
     setup();
