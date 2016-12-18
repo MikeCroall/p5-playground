@@ -10,22 +10,22 @@ var fpsDiv;
 var infoDiv;
 
 var infoMessage;
-var button;
+var btnReset;
 
 function resetGame() {
-    // remove button to reset game
-    button.remove();
-    
+    // remove btnReset to reset game
+    btnReset.remove();
+
     // reset game
     setup();
 }
 
 function setup() {
-    button = createButton('Reset');
-    button.position(windowWidth / 2 - button.width / 2, windowHeight / 2 - button.height / 2);
-    button.mousePressed(resetGame);
-    button.hide();
-    
+    btnReset = createButton('Reset');
+    btnReset.position(windowWidth / 2 - btnReset.width / 2, windowHeight / 2 - btnReset.height / 2);
+    btnReset.mousePressed(resetGame);
+    btnReset.hide();
+
     infoMessage = "Setting up game...";
     winner = {
         found: false,
@@ -40,8 +40,8 @@ function setup() {
             y: -1
         }
     };
-	frameRate(60);
-    
+    frameRate(60);
+
     calculatedCanvasEdgeSize = windowWidth / 16;
     if (windowHeight / 9 < calculatedCanvasEdgeSize) {
         calculatedCanvasEdgeSize = windowHeight / 9;
@@ -49,17 +49,17 @@ function setup() {
     calculatedCanvasEdgeSize *= canvasScale;
     pieceEdgeSize = calculatedCanvasEdgeSize / 3;
     paddedWidth = pieceEdgeSize - 10;
-	createCanvas(calculatedCanvasEdgeSize, calculatedCanvasEdgeSize);    
+    createCanvas(calculatedCanvasEdgeSize, calculatedCanvasEdgeSize);
 
     board = new gameBoard();
     fpsDiv = select('#fps');
     infoDiv = select('#info');
-    
+
     infoMessage = "Your turn";
 }
 
 function windowResized() {
-    button.position(windowWidth / 2 - button.width / 2, windowHeight / 2 - button.height / 2);
+    btnReset.position(windowWidth / 2 - btnReset.width / 2, windowHeight / 2 - btnReset.height / 2);
     calculatedCanvasEdgeSize = windowWidth / 16;
     if (windowHeight / 9 < calculatedCanvasEdgeSize) {
         calculatedCanvasEdgeSize = windowHeight / 9;
@@ -203,9 +203,15 @@ function hasWon(b) {
         ) {
             if (b.board[y][0] !== "") {
                 winnerFound.found = true;
-                winnerFound.piece = b.board[y][0]; 
-                winnerFound.start = {x:0, y:y};
-                winnerFound.end = {x:2, y:y};
+                winnerFound.piece = b.board[y][0];
+                winnerFound.start = {
+                    x: 0,
+                    y: y
+                };
+                winnerFound.end = {
+                    x: 2,
+                    y: y
+                };
                 break;
             }
         }
@@ -218,9 +224,15 @@ function hasWon(b) {
             ) {
                 if (b.board[0][x] !== "") {
                     winnerFound.found = true;
-                    winnerFound.piece = b.board[0][x]; 
-                    winnerFound.start = {x:x, y:0};
-                    winnerFound.end = {x:x, y:2};
+                    winnerFound.piece = b.board[0][x];
+                    winnerFound.start = {
+                        x: x,
+                        y: 0
+                    };
+                    winnerFound.end = {
+                        x: x,
+                        y: 2
+                    };
                     break;
                 }
             }
@@ -234,16 +246,28 @@ function hasWon(b) {
             ) {
                 winnerFound.found = true;
                 winnerFound.piece = b.board[1][1];
-                winnerFound.start = {x:0, y:0};
-                winnerFound.end = {x:2, y:2};
+                winnerFound.start = {
+                    x: 0,
+                    y: 0
+                };
+                winnerFound.end = {
+                    x: 2,
+                    y: 2
+                };
             } else if (
                 b.board[0][2] === b.board[1][1] &&
                 b.board[1][1] === b.board[2][0]
             ) {
                 winnerFound.found = true;
                 winnerFound.piece = b.board[1][1];
-                winnerFound.start = {x:2, y:0};
-                winnerFound.end = {x:0, y:2};
+                winnerFound.start = {
+                    x: 2,
+                    y: 0
+                };
+                winnerFound.end = {
+                    x: 0,
+                    y: 2
+                };
             }
         }
     }
@@ -267,13 +291,15 @@ function hasWon(b) {
 function draw() {
     background(51);
     board.draw();
-    
+
     var fps = floor(frameRate());
-    if (fps > 60) { fps = 60; }
+    if (fps > 60) {
+        fps = 60;
+    }
     textSize(32);
     fpsDiv.style("color", color(map(fps, 0, 60, 255, 0), map(fps, 0, 60, 0, 255), 0));
     fpsDiv.html("" + fps + " fps");
-    
+
     infoDiv.html(infoMessage);
 }
 
@@ -291,14 +317,14 @@ function gameBoard(grid) {
             }
         }
     }
-    
-    this.getAvailableMoves = function() {
+
+    this.getAvailableMoves = function () {
         var moves = [];
         for (var y = 0; y < 3; y++) {
             for (var x = 0; x < 3; x++) {
                 if (this.board[y][x] === "") {
                     moves.push({
-                        x: x, 
+                        x: x,
                         y: y
                     });
                 }
@@ -306,8 +332,8 @@ function gameBoard(grid) {
         }
         return moves;
     }
-    
-    this.getStateAfterPlacing = function(move) {
+
+    this.getStateAfterPlacing = function (move) {
         var newBoard = new gameBoard();
         newBoard.board = [];
         for (var y = 0; y < 3; y++) {
@@ -317,8 +343,8 @@ function gameBoard(grid) {
         newBoard.board[move.y][move.x] = this.playerTurn ? "o" : "x";
         return newBoard;
     }
-    
-    this.draw = function() {
+
+    this.draw = function () {
         var hoveredSomething = false;
         for (var y = 0; y < 3; y++) {
             for (var x = 0; x < 3; x++) {
@@ -357,13 +383,13 @@ function gameBoard(grid) {
                         noFill();
                         strokeWeight(8);
                         stroke(255, 0, 0, 150);
-                        line(topLeft.x + 0.05*paddedWidth, topLeft.y + 0.05*paddedWidth, topLeft.x + paddedWidth*0.95, topLeft.y + paddedWidth*0.95);
-                        line(topLeft.x + 0.05*paddedWidth, topLeft.y + paddedWidth*0.95, topLeft.x + paddedWidth*0.95, topLeft.y + 0.05*paddedWidth);
+                        line(topLeft.x + 0.05 * paddedWidth, topLeft.y + 0.05 * paddedWidth, topLeft.x + paddedWidth * 0.95, topLeft.y + paddedWidth * 0.95);
+                        line(topLeft.x + 0.05 * paddedWidth, topLeft.y + paddedWidth * 0.95, topLeft.x + paddedWidth * 0.95, topLeft.y + 0.05 * paddedWidth);
                     } else if (board.board[y][x] === "o") {
                         noFill();
                         strokeWeight(8);
                         stroke(0, 255, 0, 150);
-                        ellipse(topLeft.x + paddedWidth/2, topLeft.y + paddedWidth/2, paddedWidth*0.9, paddedWidth*0.9);
+                        ellipse(topLeft.x + paddedWidth / 2, topLeft.y + paddedWidth / 2, paddedWidth * 0.9, paddedWidth * 0.9);
                     }
                 }
             }
@@ -377,7 +403,7 @@ function gameBoard(grid) {
         }
         if (winner.found) {
             infoMessage = winner.piece + " wins!";
-            if (winner.piece === "x"){
+            if (winner.piece === "x") {
                 stroke(255, 0, 0);
             } else {
                 stroke(0, 255, 0);
@@ -385,11 +411,11 @@ function gameBoard(grid) {
             strokeWeight(16);
             strokeCap(ROUND);
             noFill();
-            line((winner.start.x+0.5) * pieceEdgeSize, (winner.start.y+0.5) * pieceEdgeSize, (winner.end.x+0.5) * pieceEdgeSize, (winner.end.y+0.5) * pieceEdgeSize);
-            button.show();
-        } else if(winner.draw) {
+            line((winner.start.x + 0.5) * pieceEdgeSize, (winner.start.y + 0.5) * pieceEdgeSize, (winner.end.x + 0.5) * pieceEdgeSize, (winner.end.y + 0.5) * pieceEdgeSize);
+            btnReset.show();
+        } else if (winner.draw) {
             infoMessage = "It's a draw!";
-            button.show();
+            btnReset.show();
         }
     }
 }
