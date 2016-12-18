@@ -59,6 +59,7 @@ function setup() {
 }
 
 function windowResized() {
+    button.position(windowWidth / 2 - button.width / 2, windowHeight / 2 - button.height / 2);
     calculatedCanvasEdgeSize = windowWidth / 16;
     if (windowHeight / 9 < calculatedCanvasEdgeSize) {
         calculatedCanvasEdgeSize = windowHeight / 9;
