@@ -10,6 +10,8 @@
                 display: flex;
                 justify-content: center;
                 align-items: center;
+                background-color: #333;
+                color: #888;
             }
             a {
                 font-size: 2em;
