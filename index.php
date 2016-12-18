@@ -11,6 +11,7 @@
                 justify-content: center;
                 align-items: center;
                 background-color: #333;
+                font-family: arial;
             }
             a {
                 font-size: 2em;

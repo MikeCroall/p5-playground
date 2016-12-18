@@ -4,26 +4,42 @@ var pieceEdgeSize = 10;
 var paddedWidth = pieceEdgeSize - 10;
 var board;
 var turnsTakenByPlayer = 0;
-var winner = {
-    found: false,
-    draw: false,
-    piece: "",
-    start: {
-        x: -1,
-        y: -1
-    },
-    end: {
-        x: -1,
-        y: -1
-    }
-};
+var winner;
 
 var fpsDiv;
 var infoDiv;
 
-var infoMessage = "Setting up game...";
+var infoMessage;
+var button;
+
+function resetGame() {
+    // remove button to reset game
+    button.hide();
+    
+    // reset game
+    setup();
+}
 
 function setup() {
+    button = createButton('Reset');
+    button.position(windowWidth / 2 - button.width / 2, windowHeight / 2 - button.height / 2);
+    button.mousePressed(resetGame);
+    button.hide();
+    
+    infoMessage = "Setting up game...";
+    winner = {
+        found: false,
+        draw: false,
+        piece: "",
+        start: {
+            x: -1,
+            y: -1
+        },
+        end: {
+            x: -1,
+            y: -1
+        }
+    };
 	frameRate(60);
     
     calculatedCanvasEdgeSize = windowWidth / 16;
@@ -338,13 +354,13 @@ function gameBoard(grid) {
                     rect(topLeft.x, topLeft.y, paddedWidth, paddedWidth);
                     if (board.board[y][x] === "x") {
                         noFill();
-                        strokeWeight(4);
+                        strokeWeight(8);
                         stroke(255, 0, 0, 150);
                         line(topLeft.x + 0.05*paddedWidth, topLeft.y + 0.05*paddedWidth, topLeft.x + paddedWidth*0.95, topLeft.y + paddedWidth*0.95);
                         line(topLeft.x + 0.05*paddedWidth, topLeft.y + paddedWidth*0.95, topLeft.x + paddedWidth*0.95, topLeft.y + 0.05*paddedWidth);
                     } else if (board.board[y][x] === "o") {
                         noFill();
-                        strokeWeight(4);
+                        strokeWeight(8);
                         stroke(0, 255, 0, 150);
                         ellipse(topLeft.x + paddedWidth/2, topLeft.y + paddedWidth/2, paddedWidth*0.9, paddedWidth*0.9);
                     }
@@ -369,8 +385,10 @@ function gameBoard(grid) {
             strokeCap(ROUND);
             noFill();
             line((winner.start.x+0.5) * pieceEdgeSize, (winner.start.y+0.5) * pieceEdgeSize, (winner.end.x+0.5) * pieceEdgeSize, (winner.end.y+0.5) * pieceEdgeSize);
+            button.show();
         } else if(winner.draw) {
             infoMessage = "It's a draw!";
+            button.show();
         }
     }
 }
