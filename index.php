@@ -37,7 +37,8 @@
 
             $files = array(
                 'bounce',
-                'noughts_and_crosses'
+                'noughts_and_crosses',
+		'graphs'
             );
             
             echo "<ul>";
