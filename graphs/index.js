@@ -8,7 +8,7 @@ var settingsGui;
 
 function setup() {
     createCanvas(windowWidth, windowHeight);
-
+    frameRate(30);
     settingsGui = createGui("Settings");
     sliderRange(10, 100, 5);
     settingsGui.addGlobals("totalNodeCount");
