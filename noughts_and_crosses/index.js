@@ -1,3 +1,4 @@
+// Originally created by Mike Croall https://github.com/MikeCroall/p5-playground
 var canvasScale = 8;
 var calculatedCanvasEdgeSize = 50;
 var pieceEdgeSize = 10;

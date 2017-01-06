@@ -1,4 +1,4 @@
-// Docs: https://p5js.org/reference/
+// Originally created by Mike Croall https://github.com/MikeCroall/p5-playground
 
 // final
 var MAX_SPEED_AT_SPAWN_IN_ONE_DIRECTION = 5;
@@ -15,11 +15,11 @@ var gui;
 function setup() {
 	frameRate(60);
 	createCanvas(windowWidth, windowHeight);
-    
+
     sliderRange(-0.005, 0.05, 0.001);
     gui = createGui('Settings');
     gui.addGlobals('showStats', 'trails', 'friction', 'frictionAmount');
-    
+
     balls = [];
 	for (var i = INITIAL_BALL_SPAWNS - 1; i >= 0; i--) {
 		balls.push(new ball());
@@ -33,24 +33,24 @@ function draw() {
         background(51);
     }
 
-    for (var i = balls.length - 1; i >= 0; i--) {            
+    for (var i = balls.length - 1; i >= 0; i--) {
         balls[i].update();
         balls[i].draw();
     }
-    
+
     if (showStats) {
         var averageSpeed = 0;
         var maxSpeed = 0;
         var minSpeed = Number.MAX_SAFE_INTEGER;
-        
-        for (var i = balls.length - 1; i >= 0; i--) {            
+
+        for (var i = balls.length - 1; i >= 0; i--) {
             var speed = sqrt(sq(balls[i].xspeed) + sq(balls[i].yspeed));
             averageSpeed += speed;
             if (maxSpeed < speed) { maxSpeed = speed; }
             if (minSpeed > speed) { minSpeed = speed; }
         }
         averageSpeed /= balls.length;
-        
+
         noStroke();
         textSize(32);
         var fps = floor(frameRate());
@@ -109,7 +109,7 @@ function ball() {
 				if (abs(this.yspeed) < 0.05) { // die faster
 					this.yspeed = 0;
 				}
-			
+
 				if (this.xspeed === 0 && this.yspeed === 0) { // really dead check
 					this.alive = false;
 					this.colour = color(255, 0, 0, 50);

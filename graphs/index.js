@@ -1,3 +1,4 @@
+// Originally created by Mike Croall https://github.com/MikeCroall/p5-playground
 var totalNodeCount = 75;
 var distanceToConnect = 200;
 var showDistance =  false;
