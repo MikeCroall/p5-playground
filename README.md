@@ -6,3 +6,4 @@ Thanks to p5.js, available [here](https://p5js.org/).
 
 ### Sketch ideas
 - Matter.js pool game
+- Remake of my old maze generation + solving demos
