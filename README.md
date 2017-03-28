@@ -3,7 +3,6 @@
 Available to interact with [here](https://mikecroall.github.io/p5-playground/).
 
 ### Sketch ideas
-- *in progress - maze/* Remake of my old maze generation + solving demos
 - Matter.js pool game
 
 

@@ -1,7 +1,8 @@
 var maze = [];
+var path = [];
 
-var mazeWidth = 8,
-    mazeHeight = 8;
+var mazeWidth = 30,
+    mazeHeight = 20;
 
 var updateInfo = {
     stage: 0, // 0 - generation, 1 - solving
@@ -36,6 +37,10 @@ function setup() {
 
     maze[0][0].start = true;
     maze[0][0].genVisited = true;
+    maze[0][0].g = 0;
+    maze[0][0].h = sqrt(pow(mazeWidth, 2) + pow(mazeHeight, 2));
+    maze[0][0].f = maze[0][0].g + maze[0][0].h;
+    maze[0][0].cameFrom = false;
     maze[mazeHeight - 1][mazeWidth - 1].end = true;
 
     draw();
@@ -55,6 +60,10 @@ function draw() {
             } else if (maze[y][x].end) {
                 fill(255, 0, 0);
             } else if (updateInfo.currentPosition && updateInfo.currentPosition.x === x && updateInfo.currentPosition.y === y) {
+                fill(255, 255, 0);
+            } else if (maze[y][x].inClosed) {
+                fill(127, 0, 0);
+            } else if (maze[y][x].inOpen) {
                 fill(255, 255, 0);
             } else if (maze[y][x].genVisited) {
                 fill(200);
@@ -80,6 +89,19 @@ function draw() {
             }
         }
     }
+
+    stroke(197, 66, 244);
+    strokeWeight(3);
+    for (var i = 0; i < path.length - 1; i++) {
+        var a = path[i];
+        var b = path[i + 1];
+        line((a.x + 0.5) * squareWidth, (a.y + 0.5) * squareHeight, (b.x + 0.5) * squareWidth, (b.y + 0.5) * squareHeight);
+    }
+
+}
+
+function windowResized() {
+    resizeCanvas(windowWidth * 9 / 10, windowHeight * 9 / 10);
 }
 
 function validPosition(x, y) {
@@ -113,6 +135,22 @@ function surrounding4(x, y) {
         });
     }
     return points;
+}
+
+function h(point) {
+    return sqrt(pow(point.x - mazeWidth, 2), pow(point.y - mazeHeight, 2));
+}
+
+function indexOfLowestFScore(array) {
+    var ind = 0,
+        lowestF = maze[array[0].y][array[0].x].f;
+    for (var i = 0; i < array.length; i++) {
+        if (maze[array[i].y][array[i].x].f < lowestF) {
+            ind = i;
+            lowestF = maze[array[i].y][array[i].x].f;
+        }
+    }
+    return ind;
 }
 
 function update() {
@@ -163,6 +201,81 @@ function update() {
         }
     } else if (updateInfo.stage === 1) {
         // SOLVE
-        frameRate(1);
+        if (updateInfo.open.length) {
+            var ind = indexOfLowestFScore(updateInfo.open);
+            var point = JSON.parse(JSON.stringify(updateInfo.open[ind]));
+
+            if (point.x === mazeWidth - 1 && point.y === mazeHeight - 1) {
+                updateInfo = {
+                    stage: 2,
+                    clearedOpenClosedStatuses: false
+                }
+            } else {
+                updateInfo.open.splice(ind, 1);
+                maze[point.y][point.x].inOpen = false;
+                updateInfo.closed.push(point);
+                maze[point.y][point.x].inClosed = true;
+
+                var newOpens = surrounding4(point.x, point.y)
+                    .filter(function(p) {
+                        if (point.y > p.y && maze[p.y][p.x].wallDown) {
+                            return false;
+                        } else if (point.y < p.y && maze[p.y][p.x].wallUp) {
+                            return false;
+                        } else if (point.x < p.x && maze[p.y][p.x].wallLeft) {
+                            return false;
+                        } else if (point.x > p.x && maze[p.y][p.x].wallRight) {
+                            return false;
+                        }
+                        return !maze[p.y][p.x].inClosed;
+                    });
+                for (var i = 0; i < newOpens.length; i++) {
+                    var tentativeG = maze[point.y][point.x].g + 1;
+
+                    var contin = true;
+                    if (!maze[newOpens[i].y][newOpens[i].x].inOpen) {
+                        updateInfo.open.push(newOpens[i]);
+                        maze[newOpens[i].y][newOpens[i].x].inOpen = true;
+                    } else if (tentativeG >= maze[newOpens[i].y][newOpens[i].x].g) {
+                        contin = false;
+                    }
+                    if (contin) {
+                        maze[newOpens[i].y][newOpens[i].x].cameFrom = point;
+                        maze[newOpens[i].y][newOpens[i].x].g = tentativeG;
+                        maze[newOpens[i].y][newOpens[i].x].f = maze[newOpens[i].y][newOpens[i].x].g + h(newOpens[i]);
+                    }
+                }
+            }
+        } else {
+            console.log("Open set empty");
+        }
+    } else if (updateInfo.stage === 2) {
+        // Maze solved, end found
+        if (!updateInfo.clearedOpenClosedStatuses) {
+            for (var y = 0; y < mazeHeight; y++) {
+                for (var x = 0; x < mazeWidth; x++) {
+                    maze[y][x].inClosed = false;
+                    maze[y][x].inOpen = false;
+                }
+            }
+            updateInfo.clearedOpenClosedStatuses = true;
+        }
+        if (path.length === 0) {
+            path = [{
+                x: mazeWidth - 1,
+                y: mazeHeight - 1
+            }];
+        } else {
+            var lastElem = path[path.length - 1];
+            if (maze[lastElem.y][lastElem.x].cameFrom) {
+                path.push(maze[lastElem.y][lastElem.x].cameFrom);
+            } else {
+                // No more updates needed
+                updateInfo = {
+                    stage: 3
+                }
+                frameRate(1);
+            }
+        }
     }
 }
