@@ -65,7 +65,7 @@ function draw() {
                 fill(127, 0, 0);
             } else if (maze[y][x].inOpen) {
                 fill(255, 255, 0);
-            } else if (maze[y][x].genVisited) {
+            } else if (maze[y][x].genVisited && updateInfo.stage < 3) {
                 fill(200);
             } else {
                 fill(255);
