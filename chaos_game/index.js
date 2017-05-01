@@ -61,4 +61,5 @@ function draw() {
 function moveHalfwayTo(movingPoint, point) {
     movingPoint.x = (movingPoint.x + point.x) / 2;
     movingPoint.y = (movingPoint.y + point.y) / 2;
+    // TODO link division to amount of corners or a slider? More able to find patterns if can change
 }
