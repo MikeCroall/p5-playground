@@ -6,6 +6,7 @@ Available to interact with [here](https://mikecroall.github.io/p5-playground/).
 - Matter.js pool game
 - Mikesweeper remake (with extreme mode, etc.)
 - Tetris
+- Allow control of move distance calculation ratio in chaos game
 
 
 Try out p5.js [here](https://p5js.org/).
