@@ -1,0 +1,37 @@
+<!-- Originally created by Mike Croall https://github.com/MikeCroall/p5-playground -->
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>tetris</title>
+		<style>
+			html, body {
+				height: 100%;
+				width: 100%;
+				margin: 0;
+				display: flex;
+				justify-content: center;
+				align-items: center;
+                background-color: #333;
+			}
+            canvas {
+                border: 5px solid #ddd;
+            }
+            #info {
+                color: lightgray;
+                font-family: arial;
+                font-size: 2.3em;
+                position: absolute;
+                bottom: 20px;
+                right: 20px;
+            }
+        </style>
+	</head>
+	<body>
+		<a href="https://github.com/MikeCroall/p5-playground"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://camo.githubusercontent.com/52760788cde945287fbb584134c4cbc2bc36f904/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f77686974655f6666666666662e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_white_ffffff.png"></a>
+        <div id="info">Setting up game...</div>
+		<script src="../lib/p5.min.js"></script>
+		<script src="../lib/p5.dom.js"></script>
+		<script src="tetrominos.js"></script>
+		<script src="index.js"></script>
+	</body>
+</html>
