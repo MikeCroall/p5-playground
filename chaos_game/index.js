@@ -4,16 +4,19 @@
 //     resizeCanvas(windowWidth, windowHeight);
 // }
 
-alert("Click to place corners - 3 minimum\n\nCurrent point will choose a random corner, and move halfway towards it, draw itself, and repeat");
+alert("Click to place corners - 3 minimum\n\nCurrent point will choose a random corner, and move a fraction towards it, draw itself, and repeat");
 
 var corners = [];
 var currentPoint;
 var points = 1;
+var ratioSlider;
+var lastRatioValue = 0.5;
 
 var pointCountDiv;
+var ratioDiv;
 
 function setup() {
-    createCanvas(windowWidth, windowHeight);
+    createCanvas(windowWidth * 0.9, windowHeight * 0.9);
 
     currentPoint = {
         x: random(width),
@@ -24,18 +27,25 @@ function setup() {
 
     pointCountDiv = select("#lblPoints");
     pointCountDiv.html("Points: " + points);
+    ratioDiv = select("#lblRatio");
+    ratioDiv.html("Move distance ratio: " + lastRatioValue);
+
+    ratioSlider = createSlider(0, 1, lastRatioValue, 0.025);
+    ratioSlider.position(20, 40);
 }
 
 function mouseClicked() {
-    corners.push({
-        x: mouseX,
-        y: mouseY
-    });
-    background(51);
+    if (mouseX >= 0 && mouseY >= 0 && (mouseX > 100 || mouseY > 50)) {
+        corners.push({
+            x: mouseX,
+            y: mouseY
+        });
+        background(51);
 
-    noStroke();
-    fill(255);
-    ellipse(currentPoint.x, currentPoint.y, 3, 3);
+        noStroke();
+        fill(255);
+        ellipse(currentPoint.x, currentPoint.y, 3, 3);
+    }
 }
 
 function draw() {
@@ -52,14 +62,22 @@ function draw() {
     moveHalfwayTo(currentPoint, nextChoice);
     fill(255);
     ellipse(currentPoint.x, currentPoint.y, 3, 3);
-    points ++;
+    points++;
 
 
     pointCountDiv.html("Points: " + points);
 }
 
 function moveHalfwayTo(movingPoint, point) {
-    movingPoint.x = (movingPoint.x + point.x) / 2;
-    movingPoint.y = (movingPoint.y + point.y) / 2;
-    // TODO link division to amount of corners or a slider? More able to find patterns if can change
+
+    var sliderValue = ratioSlider.value();
+    if (sliderValue != lastRatioValue) {
+        background(51);
+        // Clear non-corners when ratio changes
+    }
+    lastRatioValue = sliderValue;
+    ratioDiv.html("Move distance ratio: " + sliderValue);
+
+    movingPoint.x = (movingPoint.x + point.x) * sliderValue;
+    movingPoint.y = (movingPoint.y + point.y) * sliderValue;
 }
