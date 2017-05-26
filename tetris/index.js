@@ -8,7 +8,8 @@ var pieceEdgeSize = 1;
 
 var infoDiv;
 var infoMessage;
-var btnReset;
+
+var baseTargetFrameRate = 3;
 
 var nextTetrominoId = 1;
 var tetrominos = [];
@@ -16,7 +17,7 @@ var pieceCheck = [];
 
 function setup() {
     infoMessage = "Setting up game...";
-    frameRate(3);
+    frameRate(baseTargetFrameRate);
 
     calcCanvasHeight = windowHeight * 0.9;
     calcCanvasWidth = calcCanvasHeight / 2;
@@ -67,13 +68,29 @@ function draw() {
 }
 
 function keyPressed() {
+    // TODO support holding of left/right arrow instead of single press
     if (keyCode === LEFT_ARROW) {
         tetrominos[tetrominos.length - 1].moveLeft();
     } else if (keyCode === RIGHT_ARROW) {
         tetrominos[tetrominos.length - 1].moveRight();
+    } else if (keyCode === DOWN_ARROW) {
+        frameRate(9);
+    } else if (keyCode == 90) {
+        // TODO rotate left
+        console.log("Rotate left not yet implemented");
+    } else if (keyCode == 88) {
+        // TODO rotate right
+        console.log("Rotate right not left implemented");
+    } else {
+        console.log("Unrecognised key", keyCode);
     }
-    // TODO support rotation of tetrominos
     return false;
+}
+
+function keyReleased() {
+    if (keyCode === DOWN_ARROW) {
+        frameRate(baseTargetFrameRate);
+    }
 }
 
 function getPieceCheck(x, y) {
