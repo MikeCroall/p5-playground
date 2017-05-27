@@ -128,6 +128,18 @@ function Tetromino(x, y, pieceID, type) {
         }
     }
 
+    this.removeSquaresAtY = function(y) {
+        for (var i = this.squares.length - 1; i >= 0; i--) {
+            if(this.squares[i].y === y) {
+                setPieceCheck(this.squares[i].x, y, false);
+                this.squares.splice(i, 1);
+            }
+        }
+        if (this.squares.length === 0) {
+            this.markedForDeath = true;
+        }
+    }
+
     this.draw = function() {
         for (var i = 0; i < this.squares.length; i++) {
             this.squares[i].draw();

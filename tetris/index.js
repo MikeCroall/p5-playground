@@ -14,6 +14,7 @@ var baseTargetFrameRate = 3;
 var nextTetrominoId = 1;
 var tetrominos = [];
 var pieceCheck = [];
+var score = 0;
 
 function setup() {
     infoMessage = "Setting up game...";
@@ -35,7 +36,7 @@ function setup() {
     newTetromino();
 
     infoDiv = select("#info");
-    infoMessage = "Game starting";
+    infoMessage = "Score: " + score;
 }
 
 function windowResized() {
@@ -54,7 +55,7 @@ function draw() {
         if (tetrominos[tetrominos.length - 1].canFall()) {
             tetrominos[tetrominos.length - 1].fall();
         } else {
-            // TODO check for completed lines
+            checkFullLines();
             newTetromino();
             // TODO check for losing
         }
@@ -74,7 +75,7 @@ function keyPressed() {
     } else if (keyCode === RIGHT_ARROW) {
         tetrominos[tetrominos.length - 1].moveRight();
     } else if (keyCode === DOWN_ARROW) {
-        frameRate(4 * baseTargetFrameRate);
+        frameRate(5 * baseTargetFrameRate);
     } else if (keyCode == UP_ARROW) {
         // TODO rotate (always clockwise)
         console.error("Rotation not yet implemented");
@@ -109,6 +110,60 @@ function setPieceCheck(x, y, value) {
         return;
     }
     pieceCheck[x][y] = value;
+}
+
+function checkFullLines() {
+    var possibleChainReaction = true;
+    while (possibleChainReaction) {
+        possibleChainReaction = false;
+        // Find the full rows
+        var fullRowYs = [];
+        for (var y = pieceCheck[0].length - 1; y >= 0; y--) {
+            var pieces = 0;
+            for (var x = 0; x < pieceCheck.length; x++) {
+                if (getPieceCheck(x, y)) {
+                    pieces++;
+                }
+            }
+
+            if (pieces === 10) {
+                fullRowYs.push(y);
+            } else if (pieces === 0) {
+                // Empty row, can't be anything above, stop checking
+                break;
+            }
+        }
+
+        if (fullRowYs.length > 0) {
+            // Actually remove the full rows
+            for (var i = 0; i < fullRowYs.length; i++) {
+                for (var j = tetrominos.length - 1; j >= 0; j--) {
+                    tetrominos[j].removeSquaresAtY(fullRowYs[i]);
+                    if (tetrominos[j].markedForDeath) {
+                        tetrominos.splice(j, 1);
+                    }
+                }
+            }
+
+            // TODO nice animation for row disappearing? or effort?
+
+            // Update tetrominos that now have space beneath them
+            var fallingTetrominos = 1;
+            while (fallingTetrominos > 0) {
+                fallingTetrominos = 0;
+                for (var x = tetrominos.length - 1; x >= 0; x--) {
+                    if (tetrominos[x].canFall()) {
+                        fallingTetrominos++;
+                        tetrominos[x].fall();
+                    }
+                }
+            }
+
+            score += 100 * fullRowYs.length;
+            infoMessage = "Score: " + score;
+            possibleChainReaction = true;
+        }
+    }
 }
 
 function newTetromino() {
