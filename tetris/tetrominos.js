@@ -1,7 +1,6 @@
 // Originally created by Mike Croall https://github.com/MikeCroall/p5-playground
 
 function Tetromino(x, y, pieceID, type) {
-    type = type || floor(random(4)); // NOTE keep updating floor(random(x)) such that x = the amount of implemented types of tetromino
     this.x = x;
     this.y = y;
     this.pieceID = pieceID;
@@ -21,18 +20,35 @@ function Tetromino(x, y, pieceID, type) {
         this.squares.push(new Square(this.x + 1, this.y + 1, this.pieceID, this.colour));
     } else if (type === 2) { // |
         this.colour = color(0, 255, 255);
-        this.squares.push(new Square(this.x, this.y - 2, this.pieceID, this.colour));
         this.squares.push(new Square(this.x, this.y - 1, this.pieceID, this.colour));
         this.squares.push(new Square(this.x, this.y, this.pieceID, this.colour));
         this.squares.push(new Square(this.x, this.y + 1, this.pieceID, this.colour));
+        this.squares.push(new Square(this.x, this.y + 2, this.pieceID, this.colour));
     } else if (type === 3) { // L
         this.colour = color(255, 153, 0);
         this.squares.push(new Square(this.x, this.y - 1, this.pieceID, this.colour));
         this.squares.push(new Square(this.x, this.y, this.pieceID, this.colour));
         this.squares.push(new Square(this.x, this.y + 1, this.pieceID, this.colour));
         this.squares.push(new Square(this.x + 1, this.y + 1, this.pieceID, this.colour));
+    } else if (type === 4) { // reverse L
+        this.colour = color(0, 0, 255);
+        this.squares.push(new Square(this.x, this.y - 1, this.pieceID, this.colour));
+        this.squares.push(new Square(this.x, this.y, this.pieceID, this.colour));
+        this.squares.push(new Square(this.x, this.y + 1, this.pieceID, this.colour));
+        this.squares.push(new Square(this.x - 1, this.y + 1, this.pieceID, this.colour));
+    } else if (type === 5) { // zigzag
+        this.colour = color(0, 255, 0);
+        this.squares.push(new Square(this.x, this.y - 1, this.pieceID, this.colour));
+        this.squares.push(new Square(this.x + 1, this.y - 1, this.pieceID, this.colour));
+        this.squares.push(new Square(this.x, this.y, this.pieceID, this.colour));
+        this.squares.push(new Square(this.x - 1, this.y, this.pieceID, this.colour));
+    } else if (type === 6) { // reverse zigzag
+        this.colour = color(255, 0, 0);
+        this.squares.push(new Square(this.x, this.y - 1, this.pieceID, this.colour));
+        this.squares.push(new Square(this.x - 1, this.y - 1, this.pieceID, this.colour));
+        this.squares.push(new Square(this.x, this.y, this.pieceID, this.colour));
+        this.squares.push(new Square(this.x + 1, this.y, this.pieceID, this.colour));
     }
-    // TODO other types: reverse L, angle, reverse angle
 
     this.canFall = function() {
         for (var i = 0; i < this.squares.length; i++) {

@@ -74,15 +74,13 @@ function keyPressed() {
     } else if (keyCode === RIGHT_ARROW) {
         tetrominos[tetrominos.length - 1].moveRight();
     } else if (keyCode === DOWN_ARROW) {
-        frameRate(9);
-    } else if (keyCode == 90) {
-        // TODO rotate left
-        console.log("Rotate left not yet implemented");
-    } else if (keyCode == 88) {
-        // TODO rotate right
-        console.log("Rotate right not left implemented");
+        frameRate(4 * baseTargetFrameRate);
+    } else if (keyCode == UP_ARROW) {
+        // TODO rotate (always clockwise)
+        console.error("Rotation not yet implemented");
     } else {
         console.log("Unrecognised key", keyCode);
+        return;
     }
     return false;
 }
@@ -115,5 +113,6 @@ function setPieceCheck(x, y, value) {
 
 function newTetromino() {
     var id = "#" + nextTetrominoId++;
-    tetrominos.push(new Tetromino(4, 0, id));
+    var type = Math.floor(Math.random() * 7);
+    tetrominos.push(new Tetromino(4, 0, id, type));
 }
