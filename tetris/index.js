@@ -69,7 +69,7 @@ function draw() {
 }
 
 function keyPressed() {
-    // TODO support holding of left/right arrow instead of single press
+    // TODO support holding of left/right arrow instead of single press, keyPressed/keyReleasted/keyTyped never repeat on hold for my laptop :/
     if (keyCode === LEFT_ARROW) {
         tetrominos[tetrominos.length - 1].moveLeft();
     } else if (keyCode === RIGHT_ARROW) {
@@ -80,9 +80,10 @@ function keyPressed() {
         // TODO rotate (always clockwise)
         console.error("Rotation not yet implemented");
     } else {
-        console.log("Unrecognised key", keyCode);
+        // Unrecognised, allow browser default
         return;
     }
+    
     return false;
 }
 
@@ -113,8 +114,8 @@ function setPieceCheck(x, y, value) {
 }
 
 function checkFullLines() {
-    var possibleChainReaction = true;
-    while (possibleChainReaction) {
+    var possibleChainReaction = false;
+    do {
         possibleChainReaction = false;
         // Find the full rows
         var fullRowYs = [];
@@ -145,11 +146,9 @@ function checkFullLines() {
                 }
             }
 
-            // TODO nice animation for row disappearing? or effort?
-
             // Update tetrominos that now have space beneath them
-            var fallingTetrominos = 1;
-            while (fallingTetrominos > 0) {
+            var fallingTetrominos = 0;
+            do {
                 fallingTetrominos = 0;
                 for (var x = tetrominos.length - 1; x >= 0; x--) {
                     if (tetrominos[x].canFall()) {
@@ -157,13 +156,13 @@ function checkFullLines() {
                         tetrominos[x].fall();
                     }
                 }
-            }
+            } while (fallingTetrominos > 0);
 
             score += 100 * fullRowYs.length;
             infoMessage = "Score: " + score;
             possibleChainReaction = true;
         }
-    }
+    } while (possibleChainReaction);
 }
 
 function newTetromino() {
