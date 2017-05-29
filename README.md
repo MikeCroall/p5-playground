@@ -3,7 +3,6 @@
 Available to interact with [here](https://mikecroall.github.io/p5-playground/).
 
 ### Sketch ideas
-- (WIP) Tetris
 - Matter.js pool game
 - Mikesweeper remake (with extreme mode, etc.)
 
