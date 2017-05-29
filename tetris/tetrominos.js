@@ -66,17 +66,22 @@ const types = [
     }
 ];
 
-function Tetromino(x, y, pieceID, type) {
+function Tetromino(x, y, pieceID, type, square, idAppend) {
     this.x = x;
     this.y = y;
     this.pieceID = pieceID;
     this.squares = [];
 
-    // Type dependent
-    this.colour = color(types[type].col.r, types[type].col.g, types[type].col.b);
-    for (var i = 0; i < types[type].offsets.length; i++) {
-        var o = types[type].offsets[i];
-        this.squares.push(new Square(o.x, o.y, this.x, this.y, this.pieceID, this.colour));
+    if (!square && !idAppend) {
+        // Type dependent
+        this.colour = color(types[type].col.r, types[type].col.g, types[type].col.b);
+        for (var i = 0; i < types[type].offsets.length; i++) {
+            var o = types[type].offsets[i];
+            this.squares.push(new Square(o.x, o.y, this.x, this.y, this.pieceID, this.colour));
+        }
+    } else {
+        square.pieceID += "#" + idAppend;
+        this.squares.push(square);
     }
 
     this.canFall = function() {
@@ -124,6 +129,11 @@ function Tetromino(x, y, pieceID, type) {
             }
         }
         return false;
+    }
+
+    this.separate = function() {
+        // TODO return sets of squares that are still adjacent (diagonally doesn't count)
+        return this.squares;
     }
 
     this.fall = function() {
@@ -198,6 +208,7 @@ function Tetromino(x, y, pieceID, type) {
             if (this.squares[i].y === y) {
                 setPieceCheck(this.squares[i].x, y, false);
                 this.squares.splice(i, 1);
+                this.markedForSeparation = true;
             }
         }
         if (this.squares.length === 0) {
@@ -224,7 +235,7 @@ function Square(xOff, yOff, x, y, pieceID, col) {
     setPieceCheck(x, y, pieceID);
 
     this.wouldRotateInto = function () {
-        const angleOfRotation = PI / 2; // Negative rotation is clockwise with below calculation (can change signs in angle OR calculation)
+        const angleOfRotation = PI / 2;
         var x = this.corX + (this.x - this.corX) * cos(angleOfRotation) - (this.y - this.corY) * sin(angleOfRotation);
         var y = this.corY + (this.x - this.corX) * sin(angleOfRotation) + (this.y - this.corY) * cos(angleOfRotation);
         return {x:x, y:y};

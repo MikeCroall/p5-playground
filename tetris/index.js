@@ -34,8 +34,6 @@ function setup() {
         pieceCheck.push(column);
     }
 
-    // newTetromino();
-
     infoDiv = select("#info");
     infoMessage = "Score: " + score;
 }
@@ -54,18 +52,20 @@ function draw() {
         newTetromino();
     }
 
-    if (tetrominos[tetrominos.length - 1].noFall) {
-        delete tetrominos[tetrominos.length - 1].noFall;
-    } else {
-        if (tetrominos[tetrominos.length - 1].canFall()) {
-            tetrominos[tetrominos.length - 1].fall();
+    if (!paused) {
+        if (tetrominos[tetrominos.length - 1].noFall) {
+            delete tetrominos[tetrominos.length - 1].noFall;
         } else {
-            if(checkForLoss()) {
-                paused = true;
-                infoMessage = "Game over! Score: " + score;
+            if (tetrominos[tetrominos.length - 1].canFall()) {
+                tetrominos[tetrominos.length - 1].fall();
             } else {
-                checkFullLines();
-                newTetromino();
+                if (checkForLoss()) {
+                    paused = true;
+                    infoMessage = "Game over! Score: " + score;
+                } else {
+                    checkFullLines();
+                    newTetromino();
+                }
             }
         }
     }
@@ -164,25 +164,31 @@ function checkFullLines() {
                     tetrominos[j].removeSquaresAtY(fullRowYs[i]);
                     if (tetrominos[j].markedForDeath) {
                         tetrominos.splice(j, 1);
+                    } else if (tetrominos[j].markedForSeparation) {
+                        var squares = tetrominos[j].separate();
+                        tetrominos.splice(j, 1);
+                        for (var k = 0; k < squares.length; k++) {
+                            tetrominos.push(new Tetromino(squares[k].x, squares[k].y, squares[k].pieceID, null, squares[k], k));
+                        }
                     }
                 }
             }
-
-            // Update tetrominos that now have space beneath them
-            var fallingTetrominos = 0;
-            do {
-                fallingTetrominos = 0;
-                for (var x = tetrominos.length - 1; x >= 0; x--) {
-                    if (tetrominos[x].canFall()) {
-                        fallingTetrominos++;
-                        tetrominos[x].fall();
-                    }
-                }
-            } while (fallingTetrominos > 0);
-
-            score += 100 * fullRowYs.length;
-            infoMessage = "Score: " + score;
         }
+
+        // Update tetrominos that now have space beneath them
+        var fallingTetrominos = 0;
+        do {
+            fallingTetrominos = 0;
+            for (var x = tetrominos.length - 1; x >= 0; x--) {
+                if (tetrominos[x].canFall()) {
+                    fallingTetrominos++;
+                    tetrominos[x].fall();
+                }
+            }
+        } while (fallingTetrominos > 0);
+
+        score += 100 * fullRowYs.length;
+        infoMessage = "Score: " + score;
     } while (possibleChainReaction);
 }
 
