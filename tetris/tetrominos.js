@@ -81,6 +81,7 @@ function Tetromino(x, y, pieceID, type, square, idAppend) {
         }
     } else {
         square.pieceID += "#" + idAppend;
+        this.pieceID = square.pieceID;
         this.squares.push(square);
     }
 

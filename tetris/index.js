@@ -157,9 +157,17 @@ function checkFullLines() {
 
         if (fullRowYs.length > 0) {
             possibleChainReaction = true;
+            // var lowestFullY = 22;
+            // var highestFullY = 0;
 
             // Actually remove the full rows
             for (var i = 0; i < fullRowYs.length; i++) {
+                // if (fullRowYs[i] < lowestFullY) {
+                //     lowestFullY = fullRowYs[i];
+                // }
+                // if (fullRowYs[i] > highestFullY) {
+                //     highestFullY = fullRowYs[i];
+                // }
                 for (var j = tetrominos.length - 1; j >= 0; j--) {
                     tetrominos[j].removeSquaresAtY(fullRowYs[i]);
                     if (tetrominos[j].markedForDeath) {
@@ -173,6 +181,9 @@ function checkFullLines() {
                     }
                 }
             }
+
+            // TODO Now to make all tetrominos above highestFullY fall highestFullY - lowestFullY levels
+
         }
 
         // Update tetrominos that now have space beneath them
