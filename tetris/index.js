@@ -11,6 +11,7 @@ var infoMessage;
 
 var baseTargetFrameRate = 3;
 
+var paused = false;
 var nextTetrominoId = 1;
 var tetrominos = [];
 var pieceCheck = [];
@@ -33,7 +34,7 @@ function setup() {
         pieceCheck.push(column);
     }
 
-    newTetromino();
+    // newTetromino();
 
     infoDiv = select("#info");
     infoMessage = "Score: " + score;
@@ -48,6 +49,10 @@ function windowResized() {
 
 function draw() {
     background(51);
+
+    if (tetrominos.length === 0) {
+        newTetromino();
+    }
 
     if (tetrominos[tetrominos.length - 1].noFall) {
         delete tetrominos[tetrominos.length - 1].noFall;
@@ -65,26 +70,39 @@ function draw() {
         tetrominos[i].draw();
     }
 
+    if (paused) {
+        noStroke();
+        fill(color(51, 51, 51, 200));
+        rect(0, 0, width, height);
+    }
+
     infoDiv.html(infoMessage);
 }
 
 function keyPressed() {
-    // TODO support holding of left/right arrow instead of single press, keyPressed/keyReleasted/keyTyped never repeat on hold for my laptop :/
-    if (keyCode === LEFT_ARROW) {
+    if (paused) {
+        // Don't allow movement while paused
+        if (keyCode === 32) {
+            paused = false;
+            loop();
+        }
+    } else if (keyCode === LEFT_ARROW) {
+        // TODO support holding of left/right arrow instead of single press, keyPressed/keyReleasted/keyTyped never repeat on hold for my laptop :/
         tetrominos[tetrominos.length - 1].moveLeft();
     } else if (keyCode === RIGHT_ARROW) {
         tetrominos[tetrominos.length - 1].moveRight();
     } else if (keyCode === DOWN_ARROW) {
         frameRate(5 * baseTargetFrameRate);
-    } else if (keyCode == UP_ARROW) {
-        // TODO rotate (always clockwise)
-        console.error("Rotation not yet implemented");
+    } else if (keyCode === UP_ARROW) {
+        tetrominos[tetrominos.length - 1].rotate();
+    } else if (keyCode === 32) {
+        paused = true;
+        noLoop();
+        redraw();
     } else {
         // Unrecognised, allow browser default
         return;
     }
-    
-    return false;
 }
 
 function keyReleased() {
@@ -129,13 +147,12 @@ function checkFullLines() {
 
             if (pieces === 10) {
                 fullRowYs.push(y);
-            } else if (pieces === 0) {
-                // Empty row, can't be anything above, stop checking
-                break;
             }
         }
 
         if (fullRowYs.length > 0) {
+            possibleChainReaction = true;
+
             // Actually remove the full rows
             for (var i = 0; i < fullRowYs.length; i++) {
                 for (var j = tetrominos.length - 1; j >= 0; j--) {
@@ -160,7 +177,6 @@ function checkFullLines() {
 
             score += 100 * fullRowYs.length;
             infoMessage = "Score: " + score;
-            possibleChainReaction = true;
         }
     } while (possibleChainReaction);
 }

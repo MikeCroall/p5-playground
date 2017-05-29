@@ -1,53 +1,82 @@
 // Originally created by Mike Croall https://github.com/MikeCroall/p5-playground
 
+const types = [
+    { // Square
+        col: {r:255, g:255, b:0},
+        offsets: [
+            {x:0, y:0},
+            {x:1, y:0},
+            {x:0, y:1},
+            {x:1, y:1}
+        ]
+    },
+    { // T
+        col: {r:255, g:0, b:255},
+        offsets: [
+            {x:0, y:0},
+            {x:-1, y:0},
+            {x:1, y:0},
+            {x:0, y:1}
+        ]
+    },
+    { // |
+        col: {r:0, g:255, b:255},
+        offsets: [
+            {x:0, y:0},
+            {x:0, y:-1},
+            {x:0, y:1},
+            {x:0, y:2}
+        ]
+    },
+    { // L
+        col: {r:255, g:153, b:0},
+        offsets: [
+            {x:0, y:0},
+            {x:0, y:-1},
+            {x:0, y:1},
+            {x:1, y:1}
+        ]
+    },
+    { // reverse L
+        col: {r:0, g:0, b:255},
+        offsets: [
+            {x:0, y:0},
+            {x:0, y:-1},
+            {x:0, y:1},
+            {x:-1, y:1}
+        ]
+    },
+    { // zigzag
+        col: {r:0, g:255, b:0},
+        offsets: [
+            {x:0, y:0},
+            {x:0, y:-1},
+            {x:1, y:-1},
+            {x:-1, y:0}
+        ]
+    },
+    { // reverse zigzag
+        col: {r:255, g:0, b:0},
+        offsets: [
+            {x:0, y:0},
+            {x:0, y:-1},
+            {x:-1, y:-1},
+            {x:1, y:0}
+        ]
+    }
+];
+
 function Tetromino(x, y, pieceID, type) {
     this.x = x;
     this.y = y;
     this.pieceID = pieceID;
     this.squares = [];
 
-    if (type === 0) { // Square
-        this.colour = color(255, 255, 0);
-        this.squares.push(new Square(this.x, this.y, this.pieceID, this.colour));
-        this.squares.push(new Square(this.x + 1, this.y, this.pieceID, this.colour));
-        this.squares.push(new Square(this.x, this.y + 1, this.pieceID, this.colour));
-        this.squares.push(new Square(this.x + 1, this.y + 1, this.pieceID, this.colour));
-    } else if (type === 1) { // T
-        this.colour = color(255, 0, 255);
-        this.squares.push(new Square(this.x, this.y, this.pieceID, this.colour));
-        this.squares.push(new Square(this.x + 1, this.y, this.pieceID, this.colour));
-        this.squares.push(new Square(this.x + 2, this.y, this.pieceID, this.colour));
-        this.squares.push(new Square(this.x + 1, this.y + 1, this.pieceID, this.colour));
-    } else if (type === 2) { // |
-        this.colour = color(0, 255, 255);
-        this.squares.push(new Square(this.x, this.y - 1, this.pieceID, this.colour));
-        this.squares.push(new Square(this.x, this.y, this.pieceID, this.colour));
-        this.squares.push(new Square(this.x, this.y + 1, this.pieceID, this.colour));
-        this.squares.push(new Square(this.x, this.y + 2, this.pieceID, this.colour));
-    } else if (type === 3) { // L
-        this.colour = color(255, 153, 0);
-        this.squares.push(new Square(this.x, this.y - 1, this.pieceID, this.colour));
-        this.squares.push(new Square(this.x, this.y, this.pieceID, this.colour));
-        this.squares.push(new Square(this.x, this.y + 1, this.pieceID, this.colour));
-        this.squares.push(new Square(this.x + 1, this.y + 1, this.pieceID, this.colour));
-    } else if (type === 4) { // reverse L
-        this.colour = color(0, 0, 255);
-        this.squares.push(new Square(this.x, this.y - 1, this.pieceID, this.colour));
-        this.squares.push(new Square(this.x, this.y, this.pieceID, this.colour));
-        this.squares.push(new Square(this.x, this.y + 1, this.pieceID, this.colour));
-        this.squares.push(new Square(this.x - 1, this.y + 1, this.pieceID, this.colour));
-    } else if (type === 5) { // zigzag
-        this.colour = color(0, 255, 0);
-        this.squares.push(new Square(this.x, this.y - 1, this.pieceID, this.colour));
-        this.squares.push(new Square(this.x + 1, this.y - 1, this.pieceID, this.colour));
-        this.squares.push(new Square(this.x, this.y, this.pieceID, this.colour));
-        this.squares.push(new Square(this.x - 1, this.y, this.pieceID, this.colour));
-    } else if (type === 6) { // reverse zigzag
-        this.colour = color(255, 0, 0);
-        this.squares.push(new Square(this.x, this.y - 1, this.pieceID, this.colour));
-        this.squares.push(new Square(this.x - 1, this.y - 1, this.pieceID, this.colour));
-        this.squares.push(new Square(this.x, this.y, this.pieceID, this.colour));
-        this.squares.push(new Square(this.x + 1, this.y, this.pieceID, this.colour));
+    // Type dependent
+    this.colour = color(types[type].col.r, types[type].col.g, types[type].col.b);
+    for (var i = 0; i < types[type].offsets.length; i++) {
+        var o = types[type].offsets[i];
+        this.squares.push(new Square(o.x, o.y, this.x, this.y, this.pieceID, this.colour));
     }
 
     this.canFall = function() {
@@ -71,6 +100,15 @@ function Tetromino(x, y, pieceID, type) {
     this.canMoveRight = function() {
         for (var i = 0; i < this.squares.length; i++) {
             if (!this.squares[i].canMoveRight()) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    this.canRotate = function() {
+        for (var i = 0; i < this.squares.length; i++) {
+            if (!this.squares[i].canRotate()) {
                 return false;
             }
         }
@@ -101,13 +139,13 @@ function Tetromino(x, y, pieceID, type) {
                 setPieceCheck(this.squares[i].x, this.squares[i].y, false);
             }
             for (var i = 0; i < this.squares.length; i++) {
-                this.squares[i].x--;
+                this.squares[i].moveLeft();
             }
             for (var i = 0; i < this.squares.length; i++) {
                 setPieceCheck(this.squares[i].x, this.squares[i].y, this.pieceID);
             }
             this.noFall = true;
-            draw();
+            redraw();
         }
     }
 
@@ -118,19 +156,35 @@ function Tetromino(x, y, pieceID, type) {
                 setPieceCheck(this.squares[i].x, this.squares[i].y, false);
             }
             for (var i = 0; i < this.squares.length; i++) {
-                this.squares[i].x++;
+                this.squares[i].moveRight();
             }
             for (var i = 0; i < this.squares.length; i++) {
                 setPieceCheck(this.squares[i].x, this.squares[i].y, this.pieceID);
             }
             this.noFall = true;
-            draw();
+            redraw();
+        }
+    }
+
+    this.rotate = function() {
+        if (this.canRotate()) {
+            for (var i = 0; i < this.squares.length; i++) {
+                setPieceCheck(this.squares[i].x, this.squares[i].y, false);
+            }
+            for (var i = 0; i < this.squares.length; i++) {
+                this.squares[i].rotate();
+            }
+            for (var i = 0; i < this.squares.length; i++) {
+                setPieceCheck(this.squares[i].x, this.squares[i].y, this.pieceID);
+            }
+            this.noFall = true;
+            redraw();
         }
     }
 
     this.removeSquaresAtY = function(y) {
         for (var i = this.squares.length - 1; i >= 0; i--) {
-            if(this.squares[i].y === y) {
+            if (this.squares[i].y === y) {
                 setPieceCheck(this.squares[i].x, y, false);
                 this.squares.splice(i, 1);
             }
@@ -147,13 +201,23 @@ function Tetromino(x, y, pieceID, type) {
     }
 }
 
-function Square(x, y, pieceID, col) {
-    this.x = x;
-    this.y = y;
+function Square(xOff, yOff, x, y, pieceID, col) {
+    this.corX = x;
+    this.corY = y;
+    this.x = this.corX + xOff;
+    this.y = this.corY + yOff;
+
     this.colour = col;
     this.pieceID = pieceID;
 
     setPieceCheck(x, y, pieceID);
+
+    this.wouldRotateInto = function () {
+        const angleOfRotation = PI / 2; // Negative rotation is clockwise with below calculation (can change signs in angle OR calculation)
+        var x = this.corX + (this.x - this.corX) * cos(angleOfRotation) - (this.y - this.corY) * sin(angleOfRotation);
+        var y = this.corY + (this.x - this.corX) * sin(angleOfRotation) + (this.y - this.corY) * cos(angleOfRotation);
+        return {x:x, y:y};
+    }
 
     this.canFall = function() {
         return getPieceCheck(this.x, this.y + 1) === false || getPieceCheck(this.x, this.y + 1) === this.pieceID;
@@ -167,14 +231,40 @@ function Square(x, y, pieceID, col) {
         return getPieceCheck(this.x + 1, this.y) === false || getPieceCheck(this.x + 1, this.y) === this.pieceID;
     }
 
+    this.canRotate = function() {
+        var rotateTarget = this.wouldRotateInto();
+        return getPieceCheck(rotateTarget.x, rotateTarget.y) === false || getPieceCheck(rotateTarget.x, rotateTarget.y) === this.pieceID;
+    }
+
     this.fall = function() {
+        this.corY += 1;
         this.y += 1;
+    }
+
+    this.moveLeft = function() {
+        this.corX--;
+        this.x--;
+    }
+
+    this.moveRight = function() {
+        this.corX++;
+        this.x++;
+    }
+
+    this.rotate = function() {
+        var rotateTarget = this.wouldRotateInto();
+        this.x = rotateTarget.x;
+        this.y = rotateTarget.y;
     }
 
     this.draw = function() {
         strokeWeight(2);
         stroke(0);
         fill(this.colour);
-        rect(this.x * pieceEdgeSize, (this.y - 2) * pieceEdgeSize, pieceEdgeSize, pieceEdgeSize)
+        rect(this.x * pieceEdgeSize, (this.y - 2) * pieceEdgeSize, pieceEdgeSize, pieceEdgeSize);
+        if (this.xOff === this.yOff && this.xOff === 0) {
+            fill(51);
+            ellipse((this.x + 0.5) * pieceEdgeSize, (this.y - 2 + 0.5) * pieceEdgeSize, pieceEdgeSize * 0.2, pieceEdgeSize * 0.2);
+        }
     }
 }
