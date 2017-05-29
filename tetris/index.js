@@ -60,9 +60,13 @@ function draw() {
         if (tetrominos[tetrominos.length - 1].canFall()) {
             tetrominos[tetrominos.length - 1].fall();
         } else {
-            checkFullLines();
-            newTetromino();
-            // TODO check for losing
+            if(checkForLoss()) {
+                paused = true;
+                infoMessage = "Game over! Score: " + score;
+            } else {
+                checkFullLines();
+                newTetromino();
+            }
         }
     }
 
@@ -70,13 +74,14 @@ function draw() {
         tetrominos[i].draw();
     }
 
+    infoDiv.html(infoMessage);
+
     if (paused) {
         noStroke();
         fill(color(51, 51, 51, 200));
         rect(0, 0, width, height);
+        noLoop();
     }
-
-    infoDiv.html(infoMessage);
 }
 
 function keyPressed() {
@@ -179,6 +184,10 @@ function checkFullLines() {
             infoMessage = "Score: " + score;
         }
     } while (possibleChainReaction);
+}
+
+function checkForLoss() {
+    return tetrominos[tetrominos.length - 1].isInLosingPosition();
 }
 
 function newTetromino() {

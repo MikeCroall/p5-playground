@@ -115,6 +115,17 @@ function Tetromino(x, y, pieceID, type) {
         return true;
     }
 
+    this.isInLosingPosition = function() {
+        if (!this.canFall()) {
+            for (var i = 0; i < this.squares.length; i++) {
+                if (this.squares[i].y <= 1) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
     this.fall = function() {
         this.y += 1;
 
