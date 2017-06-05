@@ -3,6 +3,7 @@ var gridWidth = 30,
     gridHeight = 20;
 var squareWidth = 10,
     squareHeight = 10;
+var gameOver;
 
 // Disable right click
 window.oncontextmenu = function() {
@@ -12,22 +13,25 @@ window.oncontextmenu = function() {
 function drawEmpty(x, y, squareWidth, squareHeight) {
     fill(255);
     stroke(0);
+    strokeWeight(2);
     rect(x * squareWidth, y * squareHeight, squareWidth, squareHeight);
 }
 
 function drawCovered(x, y, squareWidth, squareHeight) {
     fill(200);
     stroke(0);
+    strokeWeight(2);
     rect(x * squareWidth, y * squareHeight, squareWidth, squareHeight);
 }
 
 function drawMine(x, y, squareWidth, squareHeight) {
     fill(0);
     noStroke();
-    ellipse((x + 0.5) * squareWidth, (y + 0.5) * squareHeight, 0.5 * squareWidth, 0.5 * squareHeight);
+    ellipse((x + 0.5) * squareWidth, (y + 0.5) * squareHeight, 0.6 * squareWidth, 0.6 * squareHeight);
     quad((x + 0.1) * squareWidth, (y + 0.2) * squareHeight, (x + 0.2) * squareWidth, (y + 0.1) * squareHeight, (x + 0.9) * squareWidth, (y + 0.8) * squareHeight, (x + 0.8) * squareWidth, (y + 0.9) * squareHeight);
     quad((x + 0.9) * squareWidth, (y + 0.2) * squareHeight, (x + 0.8) * squareWidth, (y + 0.1) * squareHeight, (x + 0.1) * squareWidth, (y + 0.8) * squareHeight, (x + 0.2) * squareWidth, (y + 0.9) * squareHeight);
     quad((x + 0.42) * squareWidth, (y + 0.1) * squareHeight, (x + 0.58) * squareWidth, (y + 0.1) * squareHeight, (x + 0.58) * squareWidth, (y + 0.9) * squareHeight, (x + 0.42) * squareWidth, (y + 0.9) * squareHeight);
+    quad((x + 0.1) * squareWidth, (y + 0.42) * squareHeight, (x + 0.9) * squareWidth, (y + 0.42) * squareHeight, (x + 0.9) * squareWidth, (y + 0.58) * squareHeight, (x + 0.1) * squareWidth, (y + 0.58) * squareHeight);
 }
 
 function drawMineCount(x, y, squareWidth, squareHeight, count) {
@@ -42,8 +46,8 @@ function drawMineCount(x, y, squareWidth, squareHeight, count) {
 function drawFlag(x, y, squareWidth, squareHeight) {
     fill(51);
     noStroke();
-    rect((x + 0.2) * squareWidth, (y + 0.1) * squareHeight, 0.1 * squareWidth, 0.8 * squareHeight);
-    triangle((x + 0.3) * squareWidth, (y + 0.1) * squareHeight, (x + 0.3) * squareWidth, (y + 0.6) * squareHeight, (x + 0.7) * squareWidth, (y + 0.35) * squareHeight);
+    rect((x + 0.3) * squareWidth, (y + 0.1) * squareHeight, 0.1 * squareWidth, 0.8 * squareHeight);
+    triangle((x + 0.4) * squareWidth, (y + 0.1) * squareHeight, (x + 0.4) * squareWidth, (y + 0.6) * squareHeight, (x + 0.8) * squareWidth, (y + 0.35) * squareHeight);
 }
 
 function validPosition(x, y) {
@@ -156,33 +160,51 @@ function windowResized() {
 }
 
 function mousePressed() {
-    const x = floor(mouseX / squareWidth);
-    const y = floor(mouseY / squareHeight);
+    if (!gameOver) {
+        // TODO  ensure first click of game is NOT a mine (move it away and recalculate if needed) (not necessarily needed, but would be nice)
+        const x = floor(mouseX / squareWidth);
+        const y = floor(mouseY / squareHeight);
 
-    if (validPosition(x, y)) {
-        if (mouseButton === "left") {
-            if (!grid[y][x].flag) {
-                var previouslyClosed = !grid[y][x].reveal;
-                grid[y][x].reveal = true;
-                if (grid[y][x].mine) {
-                    // TODO blow up, reveal all, end game etc.
-                } else if (previouslyClosed && !grid[y][x].adjacentMines) {
-                        // TODO any empty surroundings
-
+        if (validPosition(x, y)) {
+            if (mouseButton === "left") {
+                if (!grid[y][x].flag) {
+                    var previouslyClosed = !grid[y][x].reveal;
+                    grid[y][x].reveal = true;
+                    if (grid[y][x].mine) {
+                        for (var ys = 0; ys < gridHeight; ys++) {
+                            for (var xs = 0; xs < gridWidth; xs++) {
+                                if (grid[ys][xs].mine) {
+                                    grid[ys][xs].reveal = true;
+                                }
+                            }
+                        }
+                        gameOver = true;
+                        noLoop();
+                    } else if (previouslyClosed && !grid[y][x].adjacentMines) {
+                        var toOpen = surrounding8(x, y);
+                        while (toOpen.length > 0) {
+                            var point = toOpen[0];
+                            toOpen.splice(0, 1);
+                            if (!grid[point.y][point.x].reveal && !grid[point.y][point.x].adjacentMines) {
+                                toOpen.push.apply(toOpen, surrounding8(point.x, point.y));
+                            }
+                            if (!grid[point.y][point.x].flag) {
+                                grid[point.y][point.x].reveal = true;
+                            }
+                        }
+                    } else if (!previouslyClosed && grid[y][x].adjacentMines) {
+                        // TODO clicked on revealed number, if surrounding mines all flagged exactly, reveal the surrounding8
+                    }
+                }
+            } else if (mouseButton === "right") {
+                if (!grid[y][x].reveal) {
+                    grid[y][x].flag = grid[y][x].flag ? false : true; // Handles initially 'undefined' flag, avoids saving unneeded bools from initialisation
                 }
             }
-        } else if (mouseButton === "right") {
-            if (grid[y][x].reveal) {
-                if (grid[y][x].adjacentMines) {
-                    // TODO right click on revealed number, if surrounding mines all flagged exactly, reveal the surrounding8
-                }
-            } else {
-                grid[y][x].flag = grid[y][x].flag ? false : true; // Handles initially 'undefined' flag, avoids saving unneeded bools from initialisation
-            }
+
+            // Prevent default as we have handled it (context menu had to be disabled separately from this)
+            return false;
         }
-
-        // Prevent default as we have handled it (context menu had to be disabled separately from this)
-        return false;
     }
 }
 
