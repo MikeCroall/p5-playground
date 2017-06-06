@@ -5,6 +5,18 @@ var squareWidth = 10,
     squareHeight = 10;
 var gameOver;
 
+const numberColours = [
+    {r:0,g:0,b:0}, // 0 - default case (shouldn't actually be called, just in case)
+    {r:0,g:204,b:0}, // 1 - green
+    {r:0,g:204,b:255}, // 2 - blue
+    {r:153,g:102,b:255}, // 3 - purple
+    {r:0,g:0,b:255}, // 4 - blue
+    {r:0,g:0,b:0}, // 5 - black
+    {r:0,g:153,b:153}, // 6 - teal?
+    {r:255,g:102,b:0}, // 7 - orange
+    {r:255,g:0,b:0} // 8 - red
+];
+
 // Disable right click
 window.oncontextmenu = function() {
     return false
@@ -36,8 +48,7 @@ function drawMine(x, y, squareWidth, squareHeight) {
 
 function drawMineCount(x, y, squareWidth, squareHeight, count) {
     textSize(squareHeight);
-    // TODO fill colour based on count (lerpColor?)
-    fill(255, 0, 0);
+    fill(numberColours[count].r, numberColours[count].g, numberColours[count].b);
     noStroke();
     textAlign(CENTER, CENTER);
     text(count, (x + 0.5) * squareWidth, (y + 0.5) * squareHeight);
@@ -119,7 +130,7 @@ function getNewGrid(gridWidth, gridHeight) {
     for (var y = 0; y < gridHeight; y++) {
         var row = [];
         for (var x = 0; x < gridWidth; x++) {
-            var mine = random() <= 0.15625;
+            var mine = random() <= 0.15625; // 0.15625 is the density of mines in microsoft minesweeper's default game sizes
             row.push({
                 mine,
                 reveal: false
@@ -146,7 +157,8 @@ function getNewGrid(gridWidth, gridHeight) {
 }
 
 function setup() {
-    createCanvas(windowWidth * 9 / 10, windowHeight * 9 / 10);
+    frameRate(25);
+    createCanvas(windowWidth * 8 / 10, windowHeight * 9 / 10);
     squareWidth = width / gridWidth;
     squareHeight = height / gridHeight;
 
@@ -154,7 +166,7 @@ function setup() {
 }
 
 function windowResized() {
-    resizeCanvas(windowWidth * 9 / 10, windowHeight * 9 / 10);
+    resizeCanvas(windowWidth * 8 / 10, windowHeight * 9 / 10);
     squareWidth = width / gridWidth;
     squareHeight = height / gridHeight;
 }
