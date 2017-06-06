@@ -4,17 +4,53 @@ var gridWidth = 30,
 var squareWidth = 10,
     squareHeight = 10;
 var gameOver;
+var firstClick = true;
 
-const numberColours = [
-    {r:0,g:0,b:0}, // 0 - default case (shouldn't actually be called, just in case)
-    {r:0,g:204,b:0}, // 1 - green
-    {r:0,g:204,b:255}, // 2 - blue
-    {r:153,g:102,b:255}, // 3 - purple
-    {r:0,g:0,b:255}, // 4 - blue
-    {r:0,g:0,b:0}, // 5 - black
-    {r:0,g:153,b:153}, // 6 - teal?
-    {r:255,g:102,b:0}, // 7 - orange
-    {r:255,g:0,b:0} // 8 - red
+const numberColours = [{
+        r: 0,
+        g: 0,
+        b: 0
+    }, // 0 - default case (shouldn't actually be called, just in case)
+    {
+        r: 0,
+        g: 204,
+        b: 0
+    }, // 1 - green
+    {
+        r: 0,
+        g: 204,
+        b: 255
+    }, // 2 - blue
+    {
+        r: 153,
+        g: 102,
+        b: 255
+    }, // 3 - purple
+    {
+        r: 0,
+        g: 0,
+        b: 255
+    }, // 4 - blue
+    {
+        r: 0,
+        g: 0,
+        b: 0
+    }, // 5 - black
+    {
+        r: 0,
+        g: 153,
+        b: 153
+    }, // 6 - teal?
+    {
+        r: 255,
+        g: 102,
+        b: 0
+    }, // 7 - orange
+    {
+        r: 255,
+        g: 0,
+        b: 0
+    } // 8 - red
 ];
 
 // Disable right click
@@ -123,6 +159,17 @@ function surrounding4(x, y) {
     return points;
 }
 
+function calculateAdjacentMines(x, y, grid) {
+    var surrounding = surrounding8(x, y);
+    var mineCount = 0;
+    for (var i = 0; i < surrounding.length; i++) {
+        if (grid[surrounding[i].y][surrounding[i].x].mine) {
+            mineCount++;
+        }
+    }
+    return mineCount;
+}
+
 function getNewGrid(gridWidth, gridHeight) {
     var grid = [];
 
@@ -132,7 +179,7 @@ function getNewGrid(gridWidth, gridHeight) {
         for (var x = 0; x < gridWidth; x++) {
             var mine = random() <= 0.15625; // 0.15625 is the density of mines in microsoft minesweeper's default game sizes
             row.push({
-                mine,
+                mine, // by only giving mine, it is the equivalent of mine: mine, taking both the variable name and value into the object
                 reveal: false
             });
         }
@@ -142,18 +189,53 @@ function getNewGrid(gridWidth, gridHeight) {
     // Generate adjacent mines counts
     for (var y = 0; y < gridHeight; y++) {
         for (var x = 0; x < gridWidth; x++) {
-            var surrounding = surrounding8(x, y);
-            var mineCount = 0;
-            for (var i = 0; i < surrounding.length; i++) {
-                if (grid[surrounding[i].y][surrounding[i].x].mine) {
-                    mineCount++;
-                }
-            }
-            grid[y][x].adjacentMines = mineCount;
+            grid[y][x].adjacentMines = calculateAdjacentMines(x, y, grid);
         }
     }
 
     return grid;
+}
+
+function expandOpenArea(x, y) {
+    var toOpen = surrounding8(x, y);
+    while (toOpen.length > 0) {
+        var point = toOpen[0];
+        toOpen.splice(0, 1);
+        if (!grid[point.y][point.x].flag && !grid[point.y][point.x].reveal && !grid[point.y][point.x].adjacentMines) {
+            toOpen.push.apply(toOpen, surrounding8(point.x, point.y));
+        }
+        if (!grid[point.y][point.x].flag) {
+            grid[point.y][point.x].reveal = true;
+        }
+    }
+}
+
+function surroundingCorrectlyFlagged(x, y) {
+    var points = surrounding8(x, y);
+    for (var i = 0; i < points.length; i++) {
+        // The below looks messy because some grid squares are not storing the property at all, can't do basic equality check
+        if (!(
+                (grid[points[i].y][points[i].x].flag && grid[points[i].y][points[i].x].mine) ||
+                (!grid[points[i].y][points[i].x].flag && !grid[points[i].y][points[i].x].mine)
+            )) {
+            return false;
+        }
+    }
+    return true;
+}
+
+function allMinesFlaggedNoExtras() {
+    for (var y = 0; y < gridHeight; y++) {
+        for (var x = 0; x < gridWidth; x++) {
+            if (!(
+                    (grid[y][x].flag && grid[y][x].mine) ||
+                    (!grid[y][x].flag && !grid[y][x].mine)
+                )) {
+                return false;
+            }
+        }
+    }
+    return true;
 }
 
 function setup() {
@@ -173,11 +255,15 @@ function windowResized() {
 
 function mousePressed() {
     if (!gameOver) {
-        // TODO  ensure first click of game is NOT a mine (move it away and recalculate if needed) (not necessarily needed, but would be nice)
         const x = floor(mouseX / squareWidth);
         const y = floor(mouseY / squareHeight);
 
         if (validPosition(x, y)) {
+            if (firstClick) {
+                firstClick = false;
+                // TODO  ensure first click of game is NOT a mine (move it away and recalculate if needed) (not necessarily needed, but would be nice)
+            }
+
             if (mouseButton === "left") {
                 if (!grid[y][x].flag) {
                     var previouslyClosed = !grid[y][x].reveal;
@@ -192,25 +278,22 @@ function mousePressed() {
                         }
                         gameOver = true;
                         noLoop();
+                        alert("You lost!");
                     } else if (previouslyClosed && !grid[y][x].adjacentMines) {
-                        var toOpen = surrounding8(x, y);
-                        while (toOpen.length > 0) {
-                            var point = toOpen[0];
-                            toOpen.splice(0, 1);
-                            if (!grid[point.y][point.x].reveal && !grid[point.y][point.x].adjacentMines) {
-                                toOpen.push.apply(toOpen, surrounding8(point.x, point.y));
-                            }
-                            if (!grid[point.y][point.x].flag) {
-                                grid[point.y][point.x].reveal = true;
-                            }
-                        }
+                        expandOpenArea(x, y);
                     } else if (!previouslyClosed && grid[y][x].adjacentMines) {
-                        // TODO clicked on revealed number, if surrounding mines all flagged exactly, reveal the surrounding8
+                        if (surroundingCorrectlyFlagged(x, y)) {
+                            expandOpenArea(x, y);
+                        }
                     }
                 }
             } else if (mouseButton === "right") {
                 if (!grid[y][x].reveal) {
                     grid[y][x].flag = grid[y][x].flag ? false : true; // Handles initially 'undefined' flag, avoids saving unneeded bools from initialisation
+                    if (allMinesFlaggedNoExtras()) {
+                        noLoop();
+                        alert("You win!");
+                    }
                 }
             }
 
