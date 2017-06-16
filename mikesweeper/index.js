@@ -261,7 +261,7 @@ function mousePressed() {
         if (validPosition(x, y)) {
             if (firstClick) {
                 firstClick = false;
-                // TODO  ensure first click of game is NOT a mine (move it away and recalculate if needed) (not necessarily needed, but would be nice)
+                // TODO  (not necessary, but would be nice) ensure first click of game is NOT a mine, or have any adjacent (move them away and recalculate all needed)
             }
 
             if (mouseButton === "left") {
