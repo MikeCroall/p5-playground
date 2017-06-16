@@ -13,7 +13,8 @@ var baseTargetFrameRate = 3;
 
 var paused = false;
 var nextTetrominoId = 1;
-var tetrominos = [];
+var tetromino;
+var placedSquares = [];
 var pieceCheck = [];
 var score = 0;
 
@@ -48,31 +49,32 @@ function windowResized() {
 function draw() {
     background(51);
 
-    if (tetrominos.length === 0) {
+    if (!tetromino) {
         newTetromino();
     }
 
     if (!paused) {
-        if (tetrominos[tetrominos.length - 1].noFall) {
-            delete tetrominos[tetrominos.length - 1].noFall;
+        if (tetromino.noFall) {
+            delete tetromino.noFall;
         } else {
-            if (tetrominos[tetrominos.length - 1].canFall()) {
-                tetrominos[tetrominos.length - 1].fall();
+            if (tetromino.canFall()) {
+                tetromino.fall();
             } else {
                 if (checkForLoss()) {
                     paused = true;
                     infoMessage = "Game over! Score: " + score;
                 } else {
-                    checkFullLines();
                     newTetromino();
+                    checkFullLines();
                 }
             }
         }
     }
 
-    for (var i = 0; i < tetrominos.length; i++) {
-        tetrominos[i].draw();
+    for (var i = 0; i < placedSquares.length; i++) {
+        placedSquares[i].draw();
     }
+    tetromino.draw();
 
     infoDiv.html(infoMessage);
 
@@ -93,13 +95,13 @@ function keyPressed() {
         }
     } else if (keyCode === LEFT_ARROW) {
         // TODO support holding of left/right arrow instead of single press, keyPressed/keyReleasted/keyTyped never repeat on hold for my laptop :/
-        tetrominos[tetrominos.length - 1].moveLeft();
+        tetromino.moveLeft();
     } else if (keyCode === RIGHT_ARROW) {
-        tetrominos[tetrominos.length - 1].moveRight();
+        tetromino.moveRight();
     } else if (keyCode === DOWN_ARROW) {
         frameRate(5 * baseTargetFrameRate);
     } else if (keyCode === UP_ARROW) {
-        tetrominos[tetrominos.length - 1].rotate();
+        tetromino.rotate();
     } else if (keyCode === 32) {
         paused = true;
         noLoop();
@@ -137,78 +139,65 @@ function setPieceCheck(x, y, value) {
 }
 
 function checkFullLines() {
-    var possibleChainReaction = false;
-    do {
-        possibleChainReaction = false;
-        // Find the full rows
-        var fullRowYs = [];
-        for (var y = pieceCheck[0].length - 1; y >= 0; y--) {
-            var pieces = 0;
-            for (var x = 0; x < pieceCheck.length; x++) {
-                if (getPieceCheck(x, y)) {
-                    pieces++;
-                }
-            }
-
-            if (pieces === 10) {
-                fullRowYs.push(y);
+    // Find the full rows
+    var fullRowYs = [];
+    for (var y = pieceCheck[0].length - 1; y >= 0; y--) {
+        var pieces = 0;
+        for (var x = 0; x < pieceCheck.length; x++) {
+            if (getPieceCheck(x, y)) {
+                pieces++;
             }
         }
 
-        if (fullRowYs.length > 0) {
-            possibleChainReaction = true;
-            // var lowestFullY = 22;
-            // var highestFullY = 0;
+        if (pieces === 10) {
+            fullRowYs.push(y);
+        }
+    }
 
+    if (fullRowYs.length > 0) {
+        // Top to bottom (for cascade of falling rows to be made easy)
+        for (var i = fullRowYs.length - 1; i >= 0; i--) {
             // Actually remove the full rows
-            for (var i = 0; i < fullRowYs.length; i++) {
-                // if (fullRowYs[i] < lowestFullY) {
-                //     lowestFullY = fullRowYs[i];
-                // }
-                // if (fullRowYs[i] > highestFullY) {
-                //     highestFullY = fullRowYs[i];
-                // }
-                for (var j = tetrominos.length - 1; j >= 0; j--) {
-                    tetrominos[j].removeSquaresAtY(fullRowYs[i]);
-                    if (tetrominos[j].markedForDeath) {
-                        tetrominos.splice(j, 1);
-                    } else if (tetrominos[j].markedForSeparation) {
-                        var squares = tetrominos[j].separate();
-                        tetrominos.splice(j, 1);
-                        for (var k = 0; k < squares.length; k++) {
-                            tetrominos.push(new Tetromino(squares[k].x, squares[k].y, squares[k].pieceID, null, squares[k], k));
-                        }
-                    }
+            for (var j = placedSquares.length - 1; j >= 0; j--) {
+                if (placedSquares[j].y === fullRowYs[i]) {
+                    setPieceCheck(placedSquares[j].x, fullRowYs[i], false);
+                    placedSquares.splice(j, 1);
                 }
             }
 
-            // TODO Now to make all tetrominos above highestFullY fall highestFullY - lowestFullY levels
+            var toFall = [];
+            // Handle falling of higher rows
+            for (var j = placedSquares.length - 1; j >= 0; j--) {
+                if (placedSquares[j].y < fullRowYs[i]) {
+                    toFall.push(placedSquares[j]);
+                }
+            }
 
+            for (var j = 0; j < toFall.length; j++) {
+                setPieceCheck(toFall[j].x, toFall[j].y, false);
+            }
+            for (var j = 0; j < toFall.length; j++) {
+                toFall[j].y++;
+            }
+            for (var j = 0; j < toFall.length; j++) {
+                setPieceCheck(toFall[j].x, toFall[j].y, toFall[j].pieceID);
+            }
         }
+    }
 
-        // Update tetrominos that now have space beneath them
-        var fallingTetrominos = 0;
-        do {
-            fallingTetrominos = 0;
-            for (var x = tetrominos.length - 1; x >= 0; x--) {
-                if (tetrominos[x].canFall()) {
-                    fallingTetrominos++;
-                    tetrominos[x].fall();
-                }
-            }
-        } while (fallingTetrominos > 0);
-
-        score += 100 * fullRowYs.length;
-        infoMessage = "Score: " + score;
-    } while (possibleChainReaction);
+    score += 100 * fullRowYs.length;
+    infoMessage = "Score: " + score;
 }
 
 function checkForLoss() {
-    return tetrominos[tetrominos.length - 1].isInLosingPosition();
+    return tetromino.isInLosingPosition();
 }
 
 function newTetromino() {
+    if (tetromino) {
+        placedSquares.push.apply(placedSquares, tetromino.separate());
+    }
     var id = "#" + nextTetrominoId++;
     var type = Math.floor(Math.random() * 7);
-    tetrominos.push(new Tetromino(4, 0, id, type));
+    tetromino = new Tetromino(4, 0, id, type);
 }

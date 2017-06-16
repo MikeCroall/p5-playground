@@ -133,12 +133,11 @@ function Tetromino(x, y, pieceID, type, square, idAppend) {
     }
 
     this.separate = function() {
-        // TODO return sets of squares that are still adjacent (diagonally doesn't count)
         return this.squares;
     }
 
     this.fall = function() {
-        this.y += 1;
+        this.y ++;
 
         // The first two loops here are separate to avoid overwriting
         for (var i = 0; i < this.squares.length; i++) {
@@ -201,19 +200,6 @@ function Tetromino(x, y, pieceID, type, square, idAppend) {
             }
             this.noFall = true;
             redraw();
-        }
-    }
-
-    this.removeSquaresAtY = function(y) {
-        for (var i = this.squares.length - 1; i >= 0; i--) {
-            if (this.squares[i].y === y) {
-                setPieceCheck(this.squares[i].x, y, false);
-                this.squares.splice(i, 1);
-                this.markedForSeparation = true;
-            }
-        }
-        if (this.squares.length === 0) {
-            this.markedForDeath = true;
         }
     }
 
