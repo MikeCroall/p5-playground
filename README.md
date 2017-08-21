@@ -2,9 +2,6 @@
 ## Games and fun visuals written in JavaScript with p5.js
 Available to interact with [here](https://mikecroall.github.io/p5-playground/).
 
-### In progress
-- Mikesweeper remake (with extreme mode, etc.)
-
 ### Sketch ideas
 - Matter.js pool game
 
