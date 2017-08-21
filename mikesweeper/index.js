@@ -261,7 +261,31 @@ function mousePressed() {
         if (validPosition(x, y)) {
             if (firstClick) {
                 firstClick = false;
-                // TODO  (not necessary, but would be nice) ensure first click of game is NOT a mine, or have any adjacent (move them away and recalculate all needed)
+                if (grid[y][x].mine) {
+                    grid[y][x].mine = false;
+                    var newx = floor(random(grid[0].length));
+                    var newy = floor(random(grid.length));
+                    while(grid[newy][newx].mine || (abs(newx - x) <= 1 && abs(newy - y) <= 1)) {
+                        newx = floor(random(grid[0].length));
+                        newy = floor(random(grid.length));
+                    }
+                    console.log("MINE\nChosen new location for initially clicked mine", newx, newy);
+                    grid[newy][newx] = true;
+
+                    grid[y][x].adjacentMines = calculateAdjacentMines(x, y, grid);
+                    var points = surrounding8(x, y);
+                    for (var i = 0; i < points.length; i++) {
+                        grid[points[i].y][points[i].x].adjacentMines = calculateAdjacentMines(points[i].x, points[i].y, grid);
+                    }
+
+                    // grid[newy][newx].adjacentMines = calculateAdjacentMines(newx, newy, grid);
+                    points = surrounding8(newx, newy);
+                    console.log("updating " + points.length + " squares around new mine");
+                    for (var i = 0; i < points.length; i++) {
+                        grid[points[i].y][points[i].x].adjacentMines = calculateAdjacentMines(points[i].x, points[i].y, grid);
+                    }
+                    // TODO maybe move all adjacent mines away too?
+                }
             }
 
             if (mouseButton === "left") {
