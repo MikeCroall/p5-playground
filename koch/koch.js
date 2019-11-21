@@ -3,32 +3,40 @@ var framesPerIteration = 30;
 var maximumIterationDepth = 6;
 var zoomAmount = 1.0;
 var zoomSpeed = 0.01;
+var zoomLimit = 16000;
+var zoomAccel = function () {
+    return 0;
+};
 var zoom = true;
 var fade = false;
-var culling = false;
+var culling = true;
 
 let currentIteration = 0;
 let sections;
 let translateX = undefined, translateY = undefined, offsetForCorner = undefined;
+let viableToIncreaseMaxIterDepthIfCountDrops = false;
+let tooManySections = 2500;
+
+function getZoomAccel(zoom) {
+    return 0.001 * sqrt(zoom);
+}
 
 function setup() {
     frameRate(30);
     createCanvas(windowWidth, windowHeight);
 
-    settingsGui = createGui("Settings");
-    settingsGui.setPosition(10, 10);
+    // settingsGui = createGui("Settings");
+    // settingsGui.setPosition(10, 10);
     // sliderRange(3, 200, 1);
     // settingsGui.addGlobals("framesPerIteration");
-    sliderRange(1, 8, 1);
-    settingsGui.addGlobals("maximumIterationDepth");
-    sliderRange(0.0001, 0.5, 0.0001);
-    settingsGui.addGlobals("zoomSpeed");
-    settingsGui.addGlobals("zoom", "fade");//, "culling");
+    // sliderRange(1, 15, 1);
+    // settingsGui.addGlobals("maximumIterationDepth");
+    // settingsGui.addGlobals("zoom", "fade", "culling");
 
-    // Initial triangle dynamic to window size
     sections = [];
-
+    // Initial triangle dynamic to window size
     let initialLength = min(width, height) * 0.65;
+    // h being the full height of the initial triangle - the full snowflake is 4h/3 tall
     let h = initialLength * sin(PI/3);
     // centerY such that overall snowflake remains centered (not just window center)
     let centerY = ((height - (4 * h / 3)) / 2) + (2 * h / 3);
@@ -54,43 +62,52 @@ function draw() {
         background(0);
     }
 
+    if (sections.length < tooManySections && currentIteration >= maximumIterationDepth) {
+        maximumIterationDepth++;
+    }
+
     // Do the splits
-    if (frameCount % framesPerIteration == 0 && maximumIterationDepth > currentIteration) {
+    if (frameCount % framesPerIteration == 0 && currentIteration < maximumIterationDepth) {
         currentIteration++;
         let newSections = [];
         for(let sec of sections) {
-            if (!(culling && sec.markedForDeath)) {
-                newSections.push(...sec.split());
-            }
+            newSections.push(...sec.split());
         }
         sections = newSections;
         console.log("Post iteration section count: ", sections.length);
-        if (currentIteration >= maximumIterationDepth) {
-            console.log("Maximum iteration depth reached - no more iterations will occur");
-        }
+    } else if (frameCount % 30 == 0) {
+        console.log("Culling-check section count: ", sections.length);
     }
 
     // Draw everything
+    let actualTranslatedY = translateY;
     if (translateX !== undefined && translateY !== undefined && offsetForCorner !== undefined) {
         if (zoomAmount > 1 && zoomAmount < 2) {
-            translate(translateX, translateY - (offsetForCorner * zoomAmount)*(zoomAmount-1));
-        } else if (zoomAmount >= 2){
-            translate(translateX, translateY - (offsetForCorner * zoomAmount));
-        } else {
-            translate(translateX, translateY);
+            actualTranslatedY = translateY - (offsetForCorner * zoomAmount)*(zoomAmount-1);
+        } else if (zoomAmount >= 2) {
+            actualTranslatedY = translateY - (offsetForCorner * zoomAmount);
+            zoomAccel = getZoomAccel;
         }
+        translate(translateX, actualTranslatedY);
     }
-    // scale(zoomAmount);
     strokeWeight(1);
     stroke(255);
-    for (let sec of sections) {
-        sec.draw(zoomAmount);
+    for (var i = sections.length - 1; i >= 0; i--) {
+        // Check if on-screen - if it is, draw, if not, remove
+        if (culling && sections[i].outOfBounds(-translateX, translateX, -actualTranslatedY, zoomAmount)) {
+            sections.splice(i, 1);
+        } else {
+            sections[i].draw(zoomAmount);
+        }
     }
 
     if (zoom && currentIteration > 1) {
         zoomAmount += zoomSpeed;
-    } else {
-        zoomAmount = 1;
+        if (zoomAmount >= zoomLimit) {
+            zoom = false;
+            alert("Due to limitations of floating point precision, we're going to stop zooming there...")
+        }
+        zoomSpeed += zoomAccel(zoomAmount);
     }
 }
 
@@ -98,7 +115,6 @@ class Line {
     constructor(start, end) {
         this.start = start;
         this.end = end;
-        this.markedForDeath = false;
     }
 
     split() {
@@ -124,5 +140,13 @@ class Line {
 
     draw(scaling) {
         line(this.start.x * scaling, this.start.y * scaling, this.end.x * scaling, this.end.y * scaling);
+    }
+
+    outOfBounds(lx, rx, ty, scaling) {
+        let scaledStart = this.start.copy().mult(scaling);
+        let scaledEnd = this.end.copy().mult(scaling);
+        let startOut = scaledStart.x < lx || scaledStart.x > rx || scaledStart.y < ty;
+        let endOut = scaledEnd.x < lx || scaledEnd.x > rx || scaledEnd.y < ty;
+        return startOut && endOut;
     }
 }
