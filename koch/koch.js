@@ -1,9 +1,11 @@
 let settingsGui;
 var framesPerIteration = 30;
 var maximumIterationDepth = 6;
-var zoom = 1.0;
-var zoomOnCorner = false;
-var fade = true;
+var zoomAmount = 1.0;
+var zoomSpeed = 0.01;
+var zoom = true;
+var fade = false;
+var culling = false;
 
 let currentIteration = 0;
 let sections;
@@ -15,12 +17,13 @@ function setup() {
 
     settingsGui = createGui("Settings");
     settingsGui.setPosition(10, 10);
-    sliderRange(3, 200, 1);
-    settingsGui.addGlobals("framesPerIteration");
+    // sliderRange(3, 200, 1);
+    // settingsGui.addGlobals("framesPerIteration");
     sliderRange(1, 8, 1);
     settingsGui.addGlobals("maximumIterationDepth");
-    sliderRange(1, 20, 0.001);
-    settingsGui.addGlobals("zoom", "zoomOnCorner", "fade");
+    sliderRange(0.0001, 0.5, 0.0001);
+    settingsGui.addGlobals("zoomSpeed");
+    settingsGui.addGlobals("zoom", "fade");//, "culling");
 
     // Initial triangle dynamic to window size
     sections = [];
@@ -56,27 +59,38 @@ function draw() {
         currentIteration++;
         let newSections = [];
         for(let sec of sections) {
-            newSections.push(...sec.split())
+            if (!(culling && sec.markedForDeath)) {
+                newSections.push(...sec.split());
+            }
         }
         sections = newSections;
+        console.log("Post iteration section count: ", sections.length);
         if (currentIteration >= maximumIterationDepth) {
-            console.log("Maximum iteration depth reached - no more iterations will occur")
+            console.log("Maximum iteration depth reached - no more iterations will occur");
         }
     }
 
     // Draw everything
     if (translateX !== undefined && translateY !== undefined && offsetForCorner !== undefined) {
-        if (zoomOnCorner) {
-            translate(translateX, translateY - (offsetForCorner * zoom));
+        if (zoomAmount > 1 && zoomAmount < 2) {
+            translate(translateX, translateY - (offsetForCorner * zoomAmount)*(zoomAmount-1));
+        } else if (zoomAmount >= 2){
+            translate(translateX, translateY - (offsetForCorner * zoomAmount));
         } else {
             translate(translateX, translateY);
         }
     }
-    scale(zoom);
+    // scale(zoomAmount);
     strokeWeight(1);
     stroke(255);
     for (let sec of sections) {
-        sec.draw();
+        sec.draw(zoomAmount);
+    }
+
+    if (zoom && currentIteration > 1) {
+        zoomAmount += zoomSpeed;
+    } else {
+        zoomAmount = 1;
     }
 }
 
@@ -84,6 +98,7 @@ class Line {
     constructor(start, end) {
         this.start = start;
         this.end = end;
+        this.markedForDeath = false;
     }
 
     split() {
@@ -107,7 +122,7 @@ class Line {
         return parts;
     }
 
-    draw() {
-        line(this.start.x, this.start.y, this.end.x, this.end.y);
+    draw(scaling) {
+        line(this.start.x * scaling, this.start.y * scaling, this.end.x * scaling, this.end.y * scaling);
     }
 }
