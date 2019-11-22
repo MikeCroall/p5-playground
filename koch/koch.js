@@ -1,15 +1,16 @@
-let settingsGui;
-var framesPerIteration = 30;
-var maximumIterationDepth = 6;
-var zoomAmount = 1.0;
-var zoomSpeed = 0.01;
-var zoomLimit = 16000;
-var zoomAccel = function () {
+let framesPerIteration = 25;
+let maximumIterationDepth = 6;
+let zoomAmount = 1.0;
+let zoomSpeed = 0.01;
+let zoomLimit = 16000;
+let zoomAccel = function () {
     return 0;
 };
-var zoom = true;
-var fade = false;
-var culling = true;
+let zoom = true;
+let fade = false;
+let culling = true;
+
+let captureVideoFrames = false;
 
 let currentIteration = 0;
 let sections;
@@ -17,21 +18,26 @@ let translateX = undefined, translateY = undefined, offsetForCorner = undefined;
 let viableToIncreaseMaxIterDepthIfCountDrops = false;
 let tooManySections = 2500;
 
+let capturer;
+if (captureVideoFrames) {
+    capturer = new CCapture({ format: 'png', framerate: 25, name: 'kochvid', verbose: true });
+}
+let canv;
+
 function getZoomAccel(zoom) {
     return 0.001 * sqrt(zoom);
 }
 
 function setup() {
-    frameRate(30);
-    createCanvas(windowWidth, windowHeight);
+    let p5canvas;
 
-    // settingsGui = createGui("Settings");
-    // settingsGui.setPosition(10, 10);
-    // sliderRange(3, 200, 1);
-    // settingsGui.addGlobals("framesPerIteration");
-    // sliderRange(1, 15, 1);
-    // settingsGui.addGlobals("maximumIterationDepth");
-    // settingsGui.addGlobals("zoom", "fade", "culling");
+    if (captureVideoFrames) {
+        p5canvas = createCanvas(1920, 1080);
+    } else {
+        p5canvas = createCanvas(windowWidth, windowHeight);
+    }
+    canv = p5canvas.canvas;
+    frameRate(framesPerIteration);
 
     sections = [];
     // Initial triangle dynamic to window size
@@ -53,6 +59,9 @@ function setup() {
     sections.push(new Line(bottomRight, bottomLeft));
     sections.push(new Line(bottomLeft, top));
     sections.push(new Line(top, bottomRight));
+    if (captureVideoFrames) {
+        capturer.start();
+    }
 }
 
 function draw() {
@@ -105,9 +114,19 @@ function draw() {
         zoomAmount += zoomSpeed;
         if (zoomAmount >= zoomLimit) {
             zoom = false;
-            alert("Due to limitations of floating point precision, we're going to stop zooming there...")
+            if (captureVideoFrames) {
+                capturer.stop();
+                capturer.save();
+            } else {
+                alert("Due to limitations of floating point precision, we're going to stop zooming there...");
+            }
+            noLoop();
         }
         zoomSpeed += zoomAccel(zoomAmount);
+    }
+
+    if (captureVideoFrames) {
+        capturer.capture(canv);
     }
 }
 
