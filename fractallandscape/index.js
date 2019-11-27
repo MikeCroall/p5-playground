@@ -7,14 +7,32 @@ let distanceDivider = 3;
 let maxSplits = 6;
 let splits = 0;
 
+let captureVideoFrames = false;
+let capturer;
+if (captureVideoFrames) {
+    capturer = new CCapture({ format: 'png', framerate: 25, name: 'fractallandscapevid', verbose: true });
+}
+let canv;
+
 function setup() {
-    createCanvas(windowWidth, windowHeight, WEBGL);
+    let p5canvas;
+    if (captureVideoFrames) {
+        p5canvas = createCanvas(1920, 1080, WEBGL);
+    } else {
+        p5canvas = createCanvas(windowWidth, windowHeight, WEBGL);
+    }
+    canv = p5canvas.canvas;
+    frameRate(25);
+
     polys[0] = [
         [0, 100, 80],
         [-100, -20, -30],
         [80, -50, -50]
     ];
-    frameRate(25);
+
+    if (captureVideoFrames) {
+        capturer.start();
+    }
 }
 
 function draw() {
@@ -35,9 +53,19 @@ function draw() {
         endShape(CLOSE);
     }
 
+    if (captureVideoFrames) {
+        capturer.capture(canv);
+    }
+
     if (frameCount % framesPerIteration == 0 && splits < maxSplits) {
         splits++;
         splitPolys();
+    }
+
+    if (captureVideoFrames && frameCount >= 800) {
+        capturer.stop();
+        noLoop();
+        capturer.save();
     }
 }
 
