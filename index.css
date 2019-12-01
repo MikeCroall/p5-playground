@@ -24,7 +24,7 @@ html, body {
     flex: 0 1 calc(100% - 1em);
     box-sizing: border-box;
     margin: 1rem .25em;
-    border-radius: 10px;
+    border-radius: 15px 15px 10px 10px;
     background-color: gray;
 }
 .card > a {
