@@ -270,7 +270,7 @@ function mousePressed() {
                         newy = floor(random(grid.length));
                     }
                     console.log("MINE\nChosen new location for initially clicked mine", newx, newy);
-                    grid[newy][newx] = true;
+                    grid[newy][newx].mine = true;
 
                     grid[y][x].adjacentMines = calculateAdjacentMines(x, y, grid);
                     var points = surrounding8(x, y);
@@ -278,7 +278,8 @@ function mousePressed() {
                         grid[points[i].y][points[i].x].adjacentMines = calculateAdjacentMines(points[i].x, points[i].y, grid);
                     }
 
-                    // grid[newy][newx].adjacentMines = calculateAdjacentMines(newx, newy, grid);
+                    // grid[newy][newx] is mine - does not need adjacent calculated
+                    grid[newy][newx].adjacentMines = 0;
                     points = surrounding8(newx, newy);
                     console.log("updating " + points.length + " squares around new mine");
                     for (var i = 0; i < points.length; i++) {
