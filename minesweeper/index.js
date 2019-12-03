@@ -72,6 +72,13 @@ function drawCovered(x, y, squareWidth, squareHeight) {
     rect(x * squareWidth, y * squareHeight, squareWidth, squareHeight);
 }
 
+function drawHighlightedCovered(x, y, squareWidth, squareHeight) {
+    fill(0, 255, 0, 100);
+    stroke(0);
+    strokeWeight(2);
+    rect(x * squareWidth, y * squareHeight, squareWidth, squareHeight);
+}
+
 function drawMine(x, y, squareWidth, squareHeight) {
     fill(0);
     noStroke();
@@ -86,8 +93,8 @@ function drawMineCount(x, y, squareWidth, squareHeight, count) {
     textSize(squareHeight);
     fill(numberColours[count].r, numberColours[count].g, numberColours[count].b);
     noStroke();
-    textAlign(CENTER, CENTER);
-    text(count, (x + 0.5) * squareWidth, (y + 0.5) * squareHeight);
+    textAlign(CENTER, BASELINE);
+    text(count, (x + 0.5) * squareWidth, (y + 0.85) * squareHeight);
 }
 
 function drawFlag(x, y, squareWidth, squareHeight) {
@@ -269,7 +276,7 @@ function mousePressed() {
                         newx = floor(random(grid[0].length));
                         newy = floor(random(grid.length));
                     }
-                    console.log("MINE\nChosen new location for initially clicked mine", newx, newy);
+                    console.log("MINE\nChosen new location for initially clicked mine");
                     grid[newy][newx].mine = true;
 
                     grid[y][x].adjacentMines = calculateAdjacentMines(x, y, grid);
@@ -347,5 +354,11 @@ function draw() {
                 }
             }
         }
+    }
+
+    var hoveredX = floor(mouseX / squareWidth);
+    var hoveredY = floor(mouseY / squareHeight);
+    if (validPosition(hoveredX, hoveredY) && !grid[hoveredY][hoveredX].reveal) {
+        drawHighlightedCovered(hoveredX, hoveredY, squareWidth, squareHeight);
     }
 }
