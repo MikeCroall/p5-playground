@@ -15,7 +15,6 @@ let captureVideoFrames = false;
 let currentIteration = 0;
 let sections;
 let translateX = undefined, translateY = undefined, offsetForCorner = undefined;
-let viableToIncreaseMaxIterDepthIfCountDrops = false;
 let tooManySections = 2500;
 
 let capturer;
