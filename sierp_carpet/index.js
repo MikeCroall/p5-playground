@@ -1,11 +1,12 @@
-let MAXIMUM_ITERATION_DEPTH = 6;  // NOTE every 1 iteration further is MUCH more processing per frame
+const MAXIMUM_ITERATION_DEPTH = 6;  // NOTE every 1 iteration further is MUCH more processing per frame
 let currentIterationLimit = 1;  // for animating iterations, instead of jumping straight in at the deep end
 let framesPerIteration = 25;
 let iterationZeroSideLength;
 let carpetStartX, carpetStartY;
+let scaleFactor = 1;
 
 let captureVideoFrames = false;
-let MAXIMUM_CAPTURE_FRAME_COUNT = 200;
+const MAXIMUM_CAPTURE_FRAME_COUNT = 205; // 205=8.2 seconds@25fps 750=30 seconds@25fps
 
 let capturer;
 if (captureVideoFrames) {
@@ -20,19 +21,20 @@ function findInitialSideLengthAndPosition() {
 }
 
 function windowResized() {
-    resizeCanvas(windowWidth, windowHeight, true);
+    let squareCanvasSize = min(windowWidth, windowHeight);
+    resizeCanvas(squareCanvasSize, squareCanvasSize, true);
     findInitialSideLengthAndPosition();
     redraw();
 }
 
 function setup() {
     let p5canvas;
+    let squareCanvasSize = min(windowWidth, windowHeight);
 
     if (captureVideoFrames) {
-        p5canvas = createCanvas(1920, 1080);
-    } else {
-        p5canvas = createCanvas(windowWidth, windowHeight);
+        squareCanvasSize = 1080; // min(1920, 1080)
     }
+    p5canvas = createCanvas(squareCanvasSize, squareCanvasSize);
     canv = p5canvas.canvas;
     frameRate(framesPerIteration);
 
@@ -51,18 +53,23 @@ function draw() {
                 squares become quite jagged. Drawing everything fresh each time however is clean.
     */
     background(0);
+    if (currentIterationLimit >= MAXIMUM_ITERATION_DEPTH) {
+        scaleFactor *= 1.004;
+        if (scaleFactor >= 3) {
+            scaleFactor /= 3;
+        }
+        console.log(scaleFactor);
+    }
+    translate(carpetStartX, carpetStartY);
 
     noStroke();
     fill(255);
-    rect(carpetStartX, carpetStartY, iterationZeroSideLength, iterationZeroSideLength);
+    rect(0, 0, iterationZeroSideLength * scaleFactor, iterationZeroSideLength * scaleFactor);
 
     fill(0);  // match background to 'take away' from the shape
-    drawSquare(carpetStartX, carpetStartY, 1, iterationZeroSideLength / 3);
+    drawSquare(0, 0, 1, iterationZeroSideLength / 3);
 
-    if (currentIterationLimit == MAXIMUM_ITERATION_DEPTH && !captureVideoFrames) {
-        console.log("Stopping loop...");
-        noLoop();
-    } else if (currentIterationLimit < MAXIMUM_ITERATION_DEPTH && frameCount % framesPerIteration == 0) {
+    if (currentIterationLimit < MAXIMUM_ITERATION_DEPTH && frameCount % framesPerIteration == 0) {
         currentIterationLimit++;
     }
 
@@ -78,7 +85,7 @@ function draw() {
 
 function drawSquare(x, y, iter, sideLength) {
     // x and y are the top left corner of this square
-    rect(x + sideLength, y + sideLength, sideLength, sideLength);
+    rect((x + sideLength) * scaleFactor, (y + sideLength) * scaleFactor, sideLength * scaleFactor, sideLength * scaleFactor);
     if (iter < currentIterationLimit) {
         let subSideLength = sideLength / 3;
         let newIter = iter + 1;
