@@ -6,7 +6,7 @@ let carpetStartX, carpetStartY;
 let scaleFactor = 1;
 
 let captureVideoFrames = false;
-const MAXIMUM_CAPTURE_FRAME_COUNT = 205; // 205=8.2 seconds@25fps 750=30 seconds@25fps
+const MAXIMUM_CAPTURE_FRAME_COUNT = 206; // 205=8.2 seconds@25fps 750=30 seconds@25fps
 
 let capturer;
 if (captureVideoFrames) {
@@ -21,10 +21,12 @@ function findInitialSideLengthAndPosition() {
 }
 
 function windowResized() {
-    let squareCanvasSize = min(windowWidth, windowHeight);
-    resizeCanvas(squareCanvasSize, squareCanvasSize, true);
-    findInitialSideLengthAndPosition();
-    redraw();
+    if (!captureVideoFrames) {
+        let squareCanvasSize = min(windowWidth, windowHeight);
+        resizeCanvas(squareCanvasSize, squareCanvasSize, true);
+        findInitialSideLengthAndPosition();
+        redraw();
+    }
 }
 
 function setup() {
@@ -75,7 +77,7 @@ function draw() {
 
     if (captureVideoFrames) {
         capturer.capture(canv);
-        if (frameCount >= MAXIMUM_CAPTURE_FRAME_COUNT) {
+        if (frameCount == MAXIMUM_CAPTURE_FRAME_COUNT) {
             noLoop();
             capturer.stop();
             capturer.save();
