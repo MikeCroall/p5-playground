@@ -62,9 +62,9 @@ function draw() {
         splitPolys();
     }
 
-    if (captureVideoFrames && frameCount >= 800) {
-        capturer.stop();
+    if (captureVideoFrames && frameCount == 800) {
         noLoop();
+        capturer.stop();
         capturer.save();
     }
 }

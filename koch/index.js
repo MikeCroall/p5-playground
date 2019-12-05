@@ -113,13 +113,13 @@ function draw() {
         zoomAmount += zoomSpeed;
         if (zoomAmount >= zoomLimit) {
             zoom = false;
+            noLoop();
             if (captureVideoFrames) {
                 capturer.stop();
                 capturer.save();
             } else {
                 alert("Due to limitations of floating point precision, we're going to stop zooming there...");
             }
-            noLoop();
         }
         zoomSpeed += zoomAccel(zoomAmount);
     }

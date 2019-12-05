@@ -64,9 +64,9 @@ function draw() {
         capturer.capture(canv);
     }
 
-    if (captureVideoFrames && frameCount >= MAXIMUM_VIDEO_FRAME_COUNT) {
-        capturer.stop();
+    if (captureVideoFrames && frameCount == MAXIMUM_VIDEO_FRAME_COUNT) {
         noLoop();
+        capturer.stop();
         capturer.save();
     }
 }
