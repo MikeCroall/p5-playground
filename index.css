@@ -27,6 +27,7 @@ html, body {
     border-radius: 15px 15px 10px 10px;
     border: 0;
     background-color: gray;
+    transition: all 0.3s ease;
 }
 .card > a {
     font-size: 1.4em;
