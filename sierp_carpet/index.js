@@ -60,7 +60,6 @@ function draw() {
         if (scaleFactor >= 3) {
             scaleFactor /= 3;
         }
-        console.log(scaleFactor);
     }
     translate(carpetStartX, carpetStartY);
 
