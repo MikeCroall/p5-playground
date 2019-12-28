@@ -177,6 +177,34 @@ function calculateAdjacentMines(x, y, grid) {
     return mineCount;
 }
 
+function moveMineToNewSpot(x, y) {
+    if (grid[y][x].mine) {
+        grid[y][x].mine = false;
+        var newx = floor(random(grid[0].length));
+        var newy = floor(random(grid.length));
+        while(grid[newy][newx].mine || (abs(newx - x) <= 1 && abs(newy - y) <= 1)) {
+            newx = floor(random(grid[0].length));
+            newy = floor(random(grid.length));
+        }
+        grid[newy][newx].mine = true;
+
+        // Update counts surrounding original position
+        grid[y][x].adjacentMines = calculateAdjacentMines(x, y, grid);
+        var points = surrounding8(x, y);
+        for (var i = 0; i < points.length; i++) {
+            grid[points[i].y][points[i].x].adjacentMines = calculateAdjacentMines(points[i].x, points[i].y, grid);
+        }
+
+        // grid[newy][newx] is mine - does not need adjacent calculated
+        grid[newy][newx].adjacentMines = 0;
+        // Update counts surrounding new position
+        points = surrounding8(newx, newy);
+        for (var i = 0; i < points.length; i++) {
+            grid[points[i].y][points[i].x].adjacentMines = calculateAdjacentMines(points[i].x, points[i].y, grid);
+        }
+    }
+}
+
 function getNewGrid(gridWidth, gridHeight) {
     var grid = [];
 
@@ -266,33 +294,13 @@ function mousePressed() {
         const y = floor(mouseY / squareHeight);
 
         if (validPosition(x, y)) {
-            if (firstClick) {
+            if (firstClick && mouseButton === "left") {
                 firstClick = false;
-                if (grid[y][x].mine) {
-                    grid[y][x].mine = false;
-                    var newx = floor(random(grid[0].length));
-                    var newy = floor(random(grid.length));
-                    while(grid[newy][newx].mine || (abs(newx - x) <= 1 && abs(newy - y) <= 1)) {
-                        newx = floor(random(grid[0].length));
-                        newy = floor(random(grid.length));
-                    }
-                    console.log("MINE\nChosen new location for initially clicked mine");
-                    grid[newy][newx].mine = true;
-
-                    grid[y][x].adjacentMines = calculateAdjacentMines(x, y, grid);
-                    var points = surrounding8(x, y);
-                    for (var i = 0; i < points.length; i++) {
-                        grid[points[i].y][points[i].x].adjacentMines = calculateAdjacentMines(points[i].x, points[i].y, grid);
-                    }
-
-                    // grid[newy][newx] is mine - does not need adjacent calculated
-                    grid[newy][newx].adjacentMines = 0;
-                    points = surrounding8(newx, newy);
-                    console.log("updating " + points.length + " squares around new mine");
-                    for (var i = 0; i < points.length; i++) {
-                        grid[points[i].y][points[i].x].adjacentMines = calculateAdjacentMines(points[i].x, points[i].y, grid);
-                    }
-                    // TODO maybe move all adjacent mines away too?
+                // Move potential mine and surrounding mines so first opened spot is always empty (not number or mine)
+                moveMineToNewSpot(x, y);
+                var points = surrounding8(x, y);
+                for (var i = 0; i < points.length; i++) {
+                    moveMineToNewSpot(points[i].x, points[i].y);
                 }
             }
 
@@ -310,7 +318,6 @@ function mousePressed() {
                         }
                         gameOver = true;
                         noLoop();
-                        alert("You lost!");
                     } else if (previouslyClosed && !grid[y][x].adjacentMines) {
                         expandOpenArea(x, y);
                     } else if (!previouslyClosed && grid[y][x].adjacentMines) {
@@ -323,7 +330,9 @@ function mousePressed() {
                 if (!grid[y][x].reveal) {
                     grid[y][x].flag = grid[y][x].flag ? false : true; // Handles initially 'undefined' flag, avoids saving unneeded bools from initialisation
                     if (allMinesFlaggedNoExtras()) {
+                        gameOver = true;
                         noLoop();
+                        redraw();
                         alert("You win!");
                     }
                 }
@@ -356,9 +365,11 @@ function draw() {
         }
     }
 
-    var hoveredX = floor(mouseX / squareWidth);
-    var hoveredY = floor(mouseY / squareHeight);
-    if (validPosition(hoveredX, hoveredY) && !grid[hoveredY][hoveredX].reveal) {
-        drawHighlightedCovered(hoveredX, hoveredY, squareWidth, squareHeight);
+    if (!gameOver) {
+        var hoveredX = floor(mouseX / squareWidth);
+        var hoveredY = floor(mouseY / squareHeight);
+        if (validPosition(hoveredX, hoveredY) && !grid[hoveredY][hoveredX].reveal) {
+            drawHighlightedCovered(hoveredX, hoveredY, squareWidth, squareHeight);
+        }
     }
 }
