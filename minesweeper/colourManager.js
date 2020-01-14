@@ -3,6 +3,7 @@ function localStorageSupported() {
     try {
         localStorage.setItem(val, val);
         localStorage.removeItem(val);
+        localStorage.darktheme = localStorage.darktheme === "true";
         return true;
     } catch (e) {
         return false;
