@@ -27,7 +27,6 @@ html, body {
     border-radius: 15px 15px 10px 10px;
     border: 0;
     background-color: gray;
-    transition: all 0.3s ease;
 }
 .card > a {
     font-size: 1.4em;
@@ -51,12 +50,18 @@ html, body {
     border-radius: 10px 10px 0px 0px;
 }
 @media screen and (min-width: 768px) and (max-width: 1199px) {
+    .centered-box {
+        max-width: 90%;
+    }
     .card {
         max-width: calc(50% -  1em);
     }
 }
 @media screen and (min-width: 1200px) {
+    .centered-box {
+        max-width: 95%;
+    }
     .card {
-        max-width: calc(33% - 1em);
+        max-width: calc(25% - 1em);
     }
 }
