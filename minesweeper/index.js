@@ -6,52 +6,7 @@ var squareWidth = 10,
 var gameOver;
 var firstClick = true;
 
-const numberColours = [{
-        r: 0,
-        g: 0,
-        b: 0
-    }, // 0 - default case (shouldn't actually be called, just in case)
-    {
-        r: 0,
-        g: 204,
-        b: 0
-    }, // 1 - green
-    {
-        r: 0,
-        g: 204,
-        b: 255
-    }, // 2 - blue
-    {
-        r: 153,
-        g: 102,
-        b: 255
-    }, // 3 - purple
-    {
-        r: 0,
-        g: 0,
-        b: 255
-    }, // 4 - blue
-    {
-        r: 0,
-        g: 0,
-        b: 0
-    }, // 5 - black
-    {
-        r: 0,
-        g: 153,
-        b: 153
-    }, // 6 - teal?
-    {
-        r: 255,
-        g: 102,
-        b: 0
-    }, // 7 - orange
-    {
-        r: 255,
-        g: 0,
-        b: 0
-    } // 8 - red
-];
+let colours = isDarkTheme() ? darkThemeColours : lightThemeColours;
 
 // Disable right click
 window.oncontextmenu = function() {
@@ -59,23 +14,23 @@ window.oncontextmenu = function() {
 };
 
 function drawEmpty(x, y, squareWidth, squareHeight) {
-    fill(255);
+    fill(colours.empty.r, colours.empty.g, colours.empty.b);
     stroke(0);
-    strokeWeight(2);
+    strokeWeight(1);
     rect(x * squareWidth, y * squareHeight, squareWidth, squareHeight);
 }
 
 function drawCovered(x, y, squareWidth, squareHeight) {
-    fill(200);
+    fill(colours.covered.r, colours.covered.g, colours.covered.b);
     stroke(0);
-    strokeWeight(2);
+    strokeWeight(1);
     rect(x * squareWidth, y * squareHeight, squareWidth, squareHeight);
 }
 
 function drawHighlightedCovered(x, y, squareWidth, squareHeight) {
-    fill(0, 255, 0, 100);
+    fill(colours.highlight.r, colours.highlight.g, colours.highlight.b, colours.highlight.a);
     stroke(0);
-    strokeWeight(2);
+    strokeWeight(1);
     rect(x * squareWidth, y * squareHeight, squareWidth, squareHeight);
 }
 
@@ -91,14 +46,14 @@ function drawMine(x, y, squareWidth, squareHeight) {
 
 function drawMineCount(x, y, squareWidth, squareHeight, count) {
     textSize(squareHeight);
-    fill(numberColours[count].r, numberColours[count].g, numberColours[count].b);
+    fill(colours[count].r, colours[count].g, colours[count].b);
     noStroke();
     textAlign(CENTER, BASELINE);
     text(count, (x + 0.5) * squareWidth, (y + 0.85) * squareHeight);
 }
 
 function drawFlag(x, y, squareWidth, squareHeight) {
-    fill(51);
+    fill(colours.flag.r, colours.flag.g, colours.flag.b);
     noStroke();
     rect((x + 0.3) * squareWidth, (y + 0.1) * squareHeight, 0.1 * squareWidth, 0.8 * squareHeight);
     triangle((x + 0.4) * squareWidth, (y + 0.1) * squareHeight, (x + 0.4) * squareWidth, (y + 0.6) * squareHeight, (x + 0.8) * squareWidth, (y + 0.35) * squareHeight);
@@ -274,16 +229,25 @@ function allMinesFlaggedNoExtras() {
 }
 
 function setup() {
-    frameRate(25);
-    createCanvas(windowWidth * 8 / 10, windowHeight * 9 / 10);
+    frameRate(20);
+    createCanvas(windowWidth, windowHeight * 24 / 25);
     squareWidth = width / gridWidth;
     squareHeight = height / gridHeight;
 
     grid = getNewGrid(gridWidth, gridHeight);
+
+    if (localStorageSupported()) {
+        let chkDarkTheme = createCheckbox("Dark Theme", isDarkTheme());
+        chkDarkTheme.style("color", "#aaa");
+        chkDarkTheme.changed(function() {
+            toggleDarkTheme();
+            colours = isDarkTheme() ? darkThemeColours : lightThemeColours;
+        });
+    }
 }
 
 function windowResized() {
-    resizeCanvas(windowWidth * 8 / 10, windowHeight * 9 / 10);
+    resizeCanvas(windowWidth, windowHeight * 24 / 25);
     squareWidth = width / gridWidth;
     squareHeight = height / gridHeight;
 }
