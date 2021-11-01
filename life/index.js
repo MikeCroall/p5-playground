@@ -70,6 +70,11 @@ function windowResized() {
 }
 
 function setup() {
+    if (windowHeight > windowWidth) {
+        let temp = gameWidth;
+        gameWidth = gameHeight;
+        gameHeight = temp;
+    }
     createCanvas(windowWidth*0.95, windowHeight);
     cellWidth = width / gameWidth;
     cellHeight = height / gameHeight;
